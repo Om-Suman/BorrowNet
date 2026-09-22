@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-canvas: #0c0e12;
+  --bg-surface: #15181e;
+  --bg-surface-elevated: #1e222b;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --accent-orange: #ff5500;
+  --accent-orange-hover: #e04b00;
+  --trust-blue: #0066ff;
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-danger: #ef4444;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter Tight', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+@layer base {
+  body {
+    @apply bg-canvas text-textPrimary;
+  }
+
+  * {
+    @apply border-borderSubtle;
+  }
+
+  input, textarea, select {
+    @apply bg-surface text-textPrimary;
+  }
+
+  ::selection {
+    @apply bg-accent/30 text-white;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-canvas;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surfaceElevated rounded-full;
+  }
+}

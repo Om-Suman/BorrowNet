@@ -1,0 +1,346 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ENUMS
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum ItemStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  REMOVED
+}
+
+enum ItemCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+  POOR
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  EXPIRED
+}
+
+enum TransactionStatus {
+  APPROVED
+  HANDOVER_PENDING
+  ACTIVE
+  RETURN_PENDING
+  RETURNED
+  COMPLETED
+  OVERDUE
+  DISPUTED
+  CANCELLED
+}
+
+enum AuditStage {
+  PICKUP
+  RETURN
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum NotificationType {
+  REQUEST_RECEIVED
+  REQUEST_APPROVED
+  REQUEST_REJECTED
+  REQUEST_EXPIRED
+  HANDOVER_COMPLETED
+  DUE_DATE_REMINDER
+  RETURN_SUBMITTED
+  TRANSACTION_COMPLETED
+  DISPUTE_OPENED
+  DISPUTE_RESOLVED
+  REVIEW_RECEIVED
+  MESSAGE_RECEIVED
+}
+
+// MODELS
+model User {
+  id              String       @id @default(uuid())
+  email           String       @unique
+  passwordHash    String
+  name            String
+  avatarUrl       String?
+  bio             String?
+  location        String?
+  reputationScore Int          @default(50)
+  isVerified      Boolean      @default(false)
+  isSuspended     Boolean      @default(false)
+  role            UserRole     @default(USER)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  items              Item[]
+  borrowRequests     BorrowRequest[]  @relation("BorrowerRequests")
+  messagesSent       Message[]
+  lenderTransactions Transaction[]    @relation("LenderTransactions")
+  borrowerTransactions Transaction[]  @relation("BorrowerTransactions")
+  conditionReports   ConditionReport[]
+  reviewsGiven       Review[]         @relation("ReviewsGiven")
+  reviewsReceived    Review[]         @relation("ReviewsReceived")
+  disputesRaised     Dispute[]        @relation("DisputesRaised")
+  disputesResolved   Dispute[]        @relation("AdminResolvedDisputes")
+  notifications      Notification[]
+  auditLogs          AuditLog[]
+
+  @@index([email])
+  @@index([name])
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items       Item[]
+
+  @@index([slug])
+}
+
+model Item {
+  id            String        @id @default(uuid())
+  title         String
+  description   String
+  condition     ItemCondition @default(GOOD)
+  pricePerDay   Decimal       @default(0.00) @db.Decimal(10, 2)
+  depositValue  Decimal       @default(0.00) @db.Decimal(10, 2)
+  status        ItemStatus    @default(ACTIVE)
+  location      String?
+  rules         String?
+  minDays       Int           @default(1)
+  maxDays       Int           @default(30)
+  bufferHours   Int           @default(24)
+  ownerId       String
+  categoryId    String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  owner          User             @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  category       Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  images         ItemImage[]
+  availabilities Availability[]
+  borrowRequests BorrowRequest[]
+  transactions   Transaction[]
+
+  @@index([ownerId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([title])
+  @@index([status, categoryId])
+  @@index([ownerId, status])
+}
+
+model ItemImage {
+  id        String   @id @default(uuid())
+  url       String
+  publicId  String?
+  order     Int      @default(0)
+  itemId    String
+  createdAt DateTime @default(now())
+
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+}
+
+model Availability {
+  id        String   @id @default(uuid())
+  itemId    String
+  startDate DateTime
+  endDate   DateTime
+  isBlocked Boolean  @default(true)
+  reason    String?
+  createdAt DateTime @default(now())
+
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId, startDate, endDate])
+  @@index([itemId, isBlocked])
+}
+
+model BorrowRequest {
+  id               String        @id @default(uuid())
+  itemId           String
+  borrowerId       String
+  startDate        DateTime
+  endDate          DateTime
+  totalDays        Int
+  estimatedDeposit Decimal       @default(0.00) @db.Decimal(10, 2)
+  rentTotal        Decimal       @default(0.00) @db.Decimal(10, 2)
+  note             String?
+  status           RequestStatus @default(PENDING)
+  expiresAt        DateTime
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  item        Item          @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  borrower    User          @relation("BorrowerRequests", fields: [borrowerId], references: [id], onDelete: Restrict)
+  messages    Message[]
+  transaction Transaction?
+
+  @@index([itemId])
+  @@index([borrowerId])
+  @@index([status])
+  @@index([itemId, status, startDate, endDate])
+}
+
+model Message {
+  id         String        @id @default(uuid())
+  requestId  String
+  senderId   String
+  content    String
+  actionCard Json?
+  createdAt  DateTime      @default(now())
+
+  request    BorrowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  sender     User          @relation(fields: [senderId], references: [id], onDelete: Restrict)
+
+  @@index([requestId, createdAt])
+}
+
+model Transaction {
+  id                   String            @id @default(uuid())
+  requestId            String            @unique
+  itemId               String
+  lenderId             String
+  borrowerId           String
+  status               TransactionStatus @default(APPROVED)
+  pickupHandoverSecret String
+  returnHandoverSecret String
+  scheduledPickupAt    DateTime
+  scheduledReturnAt    DateTime
+  actualPickupAt       DateTime?
+  actualReturnAt       DateTime?
+  depositValue         Decimal           @db.Decimal(10, 2)
+  rentTotal            Decimal           @db.Decimal(10, 2)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  request          BorrowRequest     @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  item             Item              @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  lender           User              @relation("LenderTransactions", fields: [lenderId], references: [id], onDelete: Restrict)
+  borrower         User              @relation("BorrowerTransactions", fields: [borrowerId], references: [id], onDelete: Restrict)
+  conditionReports ConditionReport[]
+  reviews          Review[]
+  dispute          Dispute?
+
+  @@index([lenderId])
+  @@index([borrowerId])
+  @@index([itemId])
+  @@index([status])
+  @@index([itemId, status])
+}
+
+model ConditionReport {
+  id            String     @id @default(uuid())
+  transactionId String
+  stage         AuditStage
+  reportedById  String
+  condition     ItemCondition
+  checklist     Json
+  photos        String[]
+  notes         String?
+  reportedAt    DateTime   @default(now())
+
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  reportedBy    User        @relation(fields: [reportedById], references: [id], onDelete: Restrict)
+
+  @@index([transactionId, stage])
+}
+
+model Review {
+  id               String   @id @default(uuid())
+  transactionId    String
+  reviewerId       String
+  revieweeId       String
+  rating           Int
+  punctualityScore Int      @default(5)
+  careScore        Int      @default(5)
+  comment          String?
+  createdAt        DateTime @default(now())
+
+  transaction     Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  reviewer        User        @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Restrict)
+  reviewee        User        @relation("ReviewsReceived", fields: [revieweeId], references: [id], onDelete: Restrict)
+
+  @@unique([transactionId, reviewerId])
+  @@index([revieweeId])
+}
+
+model Dispute {
+  id             String        @id @default(uuid())
+  transactionId  String        @unique
+  raisedById     String
+  reason         String
+  description    String
+  evidencePhotos String[]
+  status         DisputeStatus @default(OPEN)
+  resolution     String?
+  resolvedById   String?
+  resolvedAt     DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  transaction    Transaction   @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  raisedBy       User          @relation("DisputesRaised", fields: [raisedById], references: [id], onDelete: Restrict)
+  resolvedBy     User?         @relation("AdminResolvedDisputes", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  @@index([status])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([action])
+}
