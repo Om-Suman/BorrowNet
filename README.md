@@ -1,60 +1,94 @@
 # BorrowNet
 
-BorrowNet is a peer-to-peer resource-sharing platform built as a JavaScript modular monolith.
+BorrowNet is a peer-to-peer resource and equipment sharing platform built with a modern React frontend and Express/PostgreSQL backend.
 
-For continuation across developers or coding platforms, read:
+## Overview
 
-- [AGENTS.md](AGENTS.md) for repository-wide agent instructions
-- [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md) for architecture and current state
-- [docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md) for ordered work and acceptance criteria
-- [docs/borrowNet_buildPlan.md](docs/borrowNet_buildPlan.md) for deferred product requirements
+BorrowNet enables community members to lend and borrow tools, electronics, and equipment safely:
 
-## Phase 1 Foundation
+- **Interactive Catalog**: Search, filter by category, and browse equipment with transparent pricing, lender trust ratings, and security deposits.
+- **Dual-Theme Design System**: High-contrast, clean light and dark modes built with Tailwind CSS.
+- **Secure Authentication**: Role-based access control, session handling, and encrypted credentials.
+- **RESTful Architecture**: Clean `/api/v1` routes with request IDs and structured response envelopes.
 
-The repository currently contains the project foundation:
+## Tech Stack
 
-- Express API in `apps/api`
-- React and Vite frontend in `apps/web`
-- JavaScript and JSX only
-- Central API environment validation
-- API health and JSON 404 endpoints
-- React Router shell for the initial Phase 1 routes
-- Prisma PostgreSQL schema and initial User migration
-- Workspace scripts for development, checks, builds, and tests
+- **Frontend**: React 18, Vite, Tailwind CSS, Lucide Icons, TanStack Query
+- **Backend**: Node.js, Express, Prisma ORM
+- **Database**: PostgreSQL
+- **Caching & Rate Limiting**: Redis
 
-## Local Setup
+## System Architecture & Diagrams
 
-Requirements: Node.js 20 or newer, PostgreSQL, and Redis.
+<details>
+  <summary><b>📊 Click to view Entity-Relationship (ER) Diagram</b></summary>
+  <br>
+  <p>Illustrates database schema entities, attributes, primary/foreign keys, and cardinalities across users, equipment items, categories, borrow requests, transactions, and reviews.</p>
+  <img src="diagrams/er_diagram.png" alt="Entity Relationship Diagram" width="100%" />
+</details>
 
-1. Install dependencies:
+<br>
+
+<details>
+  <summary><b>🔄 Click to view Data Flow Diagrams (DFD Levels 1, 2, 3)</b></summary>
+  <br>
+  <h4>Level 1 DFD: High-Level System Processes</h4>
+  <p>Captures data flows between external entities (Borrower, Lender, Admin), core application processes (Authentication, Catalog Discovery, Transaction Management), and persistent data stores.</p>
+  <img src="diagrams/dfd1.png" alt="DFD Level 1" width="100%" />
+  
+  <hr>
+
+  <h4>Level 2 DFD: Borrowing & Transaction Lifecycle</h4>
+  <p>Breaks down sub-processes for rental requests, lender approvals, security deposit escrow, and item handover.</p>
+  <img src="diagrams/dfd2.png" alt="DFD Level 2" width="100%" />
+  
+  <hr>
+
+  <h4>Level 3 DFD: Detailed Execution & Settlement</h4>
+  <p>Depicts granular state validation, return verification, deposit release/refund settlement, and review logging.</p>
+  <img src="diagrams/dfd3.png" alt="DFD Level 3" width="100%" />
+</details>
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- PostgreSQL
+- Redis
+
+### Installation & Setup
+
+1. **Install dependencies**:
 
    ```bash
    npm install
    ```
 
-2. Copy `apps/api/.env.example` to `apps/api/.env` and replace the placeholder secrets.
-
-3. Apply the Prisma migration after PostgreSQL is running:
+2. **Configure environment variables**:
 
    ```bash
-   npm run db:migrate --workspace apps/api -- --name init
+   cp apps/api/.env.example apps/api/.env
    ```
 
-4. Start the API and frontend together:
+3. **Run database migrations**:
 
+   ```bash
+   npm run db:migrate --workspace apps/api
+   ```
+
+4. **Start development servers**:
    ```bash
    npm run dev
    ```
 
-The API runs at `http://localhost:4000` and the frontend at `http://localhost:5173`.
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:5000`
+- API Health Check: `http://localhost:5000/api/v1/health`
 
-## Validation
+## Validation & Testing
 
 ```bash
 npm run check
 npm test
-npm run db:validate --workspace apps/api
-npm run db:generate --workspace apps/api
 ```
-
-The API health endpoint is available at `GET /health`.
