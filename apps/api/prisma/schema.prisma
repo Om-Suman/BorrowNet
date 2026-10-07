@@ -60,6 +60,17 @@ enum DisputeStatus {
   DISMISSED
 }
 
+enum ReportTargetType {
+  ITEM
+  USER
+}
+
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
+}
+
 enum NotificationType {
   REQUEST_RECEIVED
   REQUEST_APPROVED
@@ -77,32 +88,34 @@ enum NotificationType {
 
 // MODELS
 model User {
-  id              String       @id @default(uuid())
-  email           String       @unique
+  id              String   @id @default(uuid())
+  email           String   @unique
+  googleId        String?  @unique
   passwordHash    String
   name            String
   avatarUrl       String?
   bio             String?
   location        String?
-  reputationScore Int          @default(50)
-  isVerified      Boolean      @default(false)
-  isSuspended     Boolean      @default(false)
-  role            UserRole     @default(USER)
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  reputationScore Int      @default(50)
+  isVerified      Boolean  @default(false)
+  isSuspended     Boolean  @default(false)
+  role            UserRole @default(USER)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  items              Item[]
-  borrowRequests     BorrowRequest[]  @relation("BorrowerRequests")
-  messagesSent       Message[]
-  lenderTransactions Transaction[]    @relation("LenderTransactions")
-  borrowerTransactions Transaction[]  @relation("BorrowerTransactions")
-  conditionReports   ConditionReport[]
-  reviewsGiven       Review[]         @relation("ReviewsGiven")
-  reviewsReceived    Review[]         @relation("ReviewsReceived")
-  disputesRaised     Dispute[]        @relation("DisputesRaised")
-  disputesResolved   Dispute[]        @relation("AdminResolvedDisputes")
-  notifications      Notification[]
-  auditLogs          AuditLog[]
+  items                Item[]
+  borrowRequests       BorrowRequest[]   @relation("BorrowerRequests")
+  messagesSent         Message[]
+  lenderTransactions   Transaction[]     @relation("LenderTransactions")
+  borrowerTransactions Transaction[]     @relation("BorrowerTransactions")
+  conditionReports     ConditionReport[]
+  reviewsGiven         Review[]          @relation("ReviewsGiven")
+  reviewsReceived      Review[]          @relation("ReviewsReceived")
+  disputesRaised       Dispute[]         @relation("DisputesRaised")
+  disputesResolved     Dispute[]         @relation("AdminResolvedDisputes")
+  notifications        Notification[]
+  auditLogs            AuditLog[]
+  reportsCreated       Report[]          @relation("ReportsCreated")
 
   @@index([email])
   @@index([name])
@@ -117,31 +130,32 @@ model Category {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  items       Item[]
+  items Item[]
 
   @@index([slug])
 }
 
 model Item {
-  id            String        @id @default(uuid())
-  title         String
-  description   String
-  condition     ItemCondition @default(GOOD)
-  pricePerDay   Decimal       @default(0.00) @db.Decimal(10, 2)
-  depositValue  Decimal       @default(0.00) @db.Decimal(10, 2)
-  status        ItemStatus    @default(ACTIVE)
-  location      String?
-  rules         String?
-  minDays       Int           @default(1)
-  maxDays       Int           @default(30)
-  bufferHours   Int           @default(24)
-  ownerId       String
-  categoryId    String
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id           String                      @id @default(uuid())
+  title        String
+  description  String
+  condition    ItemCondition               @default(GOOD)
+  pricePerDay  Decimal                     @default(0.00) @db.Decimal(10, 2)
+  depositValue Decimal                     @default(0.00) @db.Decimal(10, 2)
+  status       ItemStatus                  @default(ACTIVE)
+  location     String?
+  rules        String?
+  minDays      Int                         @default(1)
+  maxDays      Int                         @default(30)
+  bufferHours  Int                         @default(24)
+  embedding    Unsupported("vector(384)")?
+  ownerId      String
+  categoryId   String
+  createdAt    DateTime                    @default(now())
+  updatedAt    DateTime                    @updatedAt
 
-  owner          User             @relation(fields: [ownerId], references: [id], onDelete: Restrict)
-  category       Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  owner          User            @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  category       Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   images         ItemImage[]
   availabilities Availability[]
   borrowRequests BorrowRequest[]
@@ -163,7 +177,7 @@ model ItemImage {
   itemId    String
   createdAt DateTime @default(now())
 
-  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@index([itemId])
 }
@@ -177,7 +191,7 @@ model Availability {
   reason    String?
   createdAt DateTime @default(now())
 
-  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@index([itemId, startDate, endDate])
   @@index([itemId, isBlocked])
@@ -195,11 +209,12 @@ model BorrowRequest {
   note             String?
   status           RequestStatus @default(PENDING)
   expiresAt        DateTime
+  rejectionReason  String?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
-  item        Item          @relation(fields: [itemId], references: [id], onDelete: Restrict)
-  borrower    User          @relation("BorrowerRequests", fields: [borrowerId], references: [id], onDelete: Restrict)
+  item        Item         @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  borrower    User         @relation("BorrowerRequests", fields: [borrowerId], references: [id], onDelete: Restrict)
   messages    Message[]
   transaction Transaction?
 
@@ -210,15 +225,15 @@ model BorrowRequest {
 }
 
 model Message {
-  id         String        @id @default(uuid())
+  id         String   @id @default(uuid())
   requestId  String
   senderId   String
   content    String
   actionCard Json?
-  createdAt  DateTime      @default(now())
+  createdAt  DateTime @default(now())
 
-  request    BorrowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  sender     User          @relation(fields: [senderId], references: [id], onDelete: Restrict)
+  request BorrowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  sender  User          @relation(fields: [senderId], references: [id], onDelete: Restrict)
 
   @@index([requestId, createdAt])
 }
@@ -257,7 +272,7 @@ model Transaction {
 }
 
 model ConditionReport {
-  id            String     @id @default(uuid())
+  id            String        @id @default(uuid())
   transactionId String
   stage         AuditStage
   reportedById  String
@@ -265,10 +280,10 @@ model ConditionReport {
   checklist     Json
   photos        String[]
   notes         String?
-  reportedAt    DateTime   @default(now())
+  reportedAt    DateTime      @default(now())
 
-  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
-  reportedBy    User        @relation(fields: [reportedById], references: [id], onDelete: Restrict)
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  reportedBy  User        @relation(fields: [reportedById], references: [id], onDelete: Restrict)
 
   @@index([transactionId, stage])
 }
@@ -284,9 +299,9 @@ model Review {
   comment          String?
   createdAt        DateTime @default(now())
 
-  transaction     Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
-  reviewer        User        @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Restrict)
-  reviewee        User        @relation("ReviewsReceived", fields: [revieweeId], references: [id], onDelete: Restrict)
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  reviewer    User        @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Restrict)
+  reviewee    User        @relation("ReviewsReceived", fields: [revieweeId], references: [id], onDelete: Restrict)
 
   @@unique([transactionId, reviewerId])
   @@index([revieweeId])
@@ -306,9 +321,9 @@ model Dispute {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  transaction    Transaction   @relation(fields: [transactionId], references: [id], onDelete: Cascade)
-  raisedBy       User          @relation("DisputesRaised", fields: [raisedById], references: [id], onDelete: Restrict)
-  resolvedBy     User?         @relation("AdminResolvedDisputes", fields: [resolvedById], references: [id], onDelete: SetNull)
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  raisedBy    User        @relation("DisputesRaised", fields: [raisedById], references: [id], onDelete: Restrict)
+  resolvedBy  User?       @relation("AdminResolvedDisputes", fields: [resolvedById], references: [id], onDelete: SetNull)
 
   @@index([status])
 }
@@ -323,7 +338,7 @@ model Notification {
   isRead    Boolean          @default(false)
   createdAt DateTime         @default(now())
 
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead])
 }
@@ -339,8 +354,26 @@ model AuditLog {
   userAgent  String?
   createdAt  DateTime @default(now())
 
-  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
 
   @@index([entityType, entityId])
   @@index([action])
+}
+
+model Report {
+  id         String           @id @default(uuid())
+  reporterId String
+  targetType ReportTargetType
+  targetId   String
+  reason     String
+  details    String?
+  status     ReportStatus     @default(PENDING)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  reporter User @relation("ReportsCreated", fields: [reporterId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([targetType, targetId])
+  @@index([reporterId])
 }

@@ -5,6 +5,8 @@ export const authApi = {
     apiClient("/auth/register", { method: "POST", body: JSON.stringify(data) }),
   login: (data) =>
     apiClient("/auth/login", { method: "POST", body: JSON.stringify(data) }),
+  googleAuth: (data) =>
+    apiClient("/auth/google", { method: "POST", body: JSON.stringify(data) }),
   refresh: () => apiClient("/auth/refresh", { method: "POST" }),
   logout: () => apiClient("/auth/logout", { method: "POST" }),
 };

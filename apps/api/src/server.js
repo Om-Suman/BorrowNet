@@ -1,7 +1,6 @@
 import app from './app.js';
 import config from './config/index.js';
 import { prisma } from './core/prisma.js';
-import { redis } from './core/redis.js';
 import logger from './core/logger.js';
 
 async function start() {
@@ -25,15 +24,6 @@ async function start() {
         logger.info('Prisma disconnected.');
       } catch (err) {
         logger.error('Error during Prisma disconnect', { error: err.message });
-      }
-
-      if (redis) {
-        try {
-          await redis.quit();
-          logger.info('Redis disconnected.');
-        } catch (err) {
-          logger.error('Error during Redis disconnect', { error: err.message });
-        }
       }
 
       process.exit(0);

@@ -5,12 +5,34 @@ export default {
   theme: {
     extend: {
       colors: {
+        // BorrowNet Design System Palette
+        "bn-primary": "#006948",
+        "bn-primary-hover": "#005137",
+        "bn-primary-light": "#059669",
+        "bn-primary-container": "#00855d",
+        "bn-on-primary": "#ffffff",
+        "bn-secondary": "#855300",
+        "bn-secondary-container": "#fea619",
+        "bn-amber": "#F59E0B",
+        "bn-surface": "#faf8ff",
+        "bn-surface-dim": "#d2d9f4",
+        "bn-surface-low": "#f2f3ff",
+        "bn-surface-container": "#eaedff",
+        "bn-surface-high": "#e2e7ff",
+        "bn-surface-highest": "#dae2fd",
+        "bn-on-surface": "#131b2e",
+        "bn-on-surface-variant": "#3d4a42",
+        "bn-inverse-surface": "#283044",
+        "bn-outline": "#6d7a72",
+        "bn-outline-variant": "#bccac0",
+        "bn-border": "#e2e8f0",
+
         // Shopifi Two-Canvas Foundations
         "canvas-night": "#000000",
         "canvas-night-elevated": "#0a0a0a",
         "surface-elevated-dark": "#1e2c31",
         "canvas-light": "#ffffff",
-        "canvas-cream": "#fbfbf5",
+        "canvas-cream": "#faf8ff",
         "hairline-light": "#e4e4e7",
         "hairline-dark": "#1e2c31",
 
@@ -36,22 +58,28 @@ export default {
         textSecondary: "var(--color-text-secondary)",
         borderSubtle: "var(--color-border-subtle)",
         borderStrong: "var(--color-border-strong)",
-        accent: "#c1fbd4",
-        accentHover: "#aef7c5",
+        accent: "#006948",
+        accentHover: "#005137",
         trust: "#0066ff",
         success: "#10b981",
         warning: "#f59e0b",
-        danger: "#ef4444",
+        danger: "#ba1a1a",
       },
       fontFamily: {
-        display: [
-          '"Neue Haas Grotesk Display"',
+        sans: [
+          '"Plus Jakarta Sans"',
           "Inter",
-          "Helvetica Neue",
-          "Arial",
+          "-apple-system",
+          "BlinkMacSystemFont",
           "sans-serif",
         ],
-        body: ["Inter", "system-ui", "sans-serif"],
+        display: [
+          '"Plus Jakarta Sans"',
+          '"Neue Haas Grotesk Display"',
+          "Inter",
+          "sans-serif",
+        ],
+        body: ['"Plus Jakarta Sans"', "Inter", "system-ui", "sans-serif"],
         mono: [
           "ui-monospace",
           "SFMono-Regular",

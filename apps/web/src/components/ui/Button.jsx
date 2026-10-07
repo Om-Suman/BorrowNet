@@ -17,9 +17,21 @@ const Button = forwardRef(
       "inline-flex items-center justify-center rounded-full font-medium transition-all duration-150 select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
 
     const variants = {
-      // Primary pill: solid black on light, solid white on dark
+      // Primary emerald pill/button
       primary:
-        "bg-black text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 border border-transparent shadow-sm focus-visible:ring-black dark:focus-visible:ring-white",
+        "bg-[#006948] text-white hover:bg-[#005137] border border-transparent shadow-sm focus-visible:ring-[#006948] hover:-translate-y-0.5",
+
+      // Emerald direct
+      emerald:
+        "bg-[#006948] text-white hover:bg-[#005137] border border-transparent shadow-sm focus-visible:ring-[#006948] hover:-translate-y-0.5",
+
+      // Amber community/warm action
+      amber:
+        "bg-[#fea619] text-[#131b2e] hover:bg-[#e69512] border border-transparent font-semibold shadow-sm focus-visible:ring-[#fea619] hover:-translate-y-0.5",
+
+      // Solid dark button
+      dark:
+        "bg-black text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 border border-transparent shadow-sm focus-visible:ring-black",
 
       // Featured commerce CTA (Aloe 10 mint pill)
       aloe: "bg-[#c1fbd4] text-black hover:bg-[#aef7c5] border border-transparent shadow-sm focus-visible:ring-[#c1fbd4]",
@@ -36,9 +48,9 @@ const Button = forwardRef(
       "outline-on-light":
         "border border-black text-black bg-transparent hover:bg-black/5 focus-visible:ring-black",
 
-      // Neutral secondary pill
+      // Secondary card/white pill
       secondary:
-        "bg-neutral-200 text-black hover:bg-neutral-300 dark:bg-neutral-800 dark:text-white dark:hover:bg-neutral-700 border border-transparent",
+        "bg-white text-[#131b2e] hover:bg-neutral-50 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800 border border-[#e2e8f0] dark:border-neutral-700 shadow-sm",
 
       // Minimal ghost pill
       ghost:

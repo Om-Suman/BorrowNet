@@ -4,13 +4,13 @@
 
 /* Light / Transactional Track (Canvas Cream & White) */
 :root {
-  --color-surface-base: #fbfbf5;
+  --color-surface-base: #faf8ff;
   --color-surface-raised: #ffffff;
-  --color-surface-strong: #f4f4ec;
-  --color-text-primary: #000000;
-  --color-text-secondary: #71717a;
-  --color-border-subtle: #e4e4e7;
-  --color-border-strong: #d4d4d8;
+  --color-surface-strong: #eaedff;
+  --color-text-primary: #131b2e;
+  --color-text-secondary: #475569;
+  --color-border-subtle: #e2e8f0;
+  --color-border-strong: #bccac0;
 
   color-scheme: light;
 }

@@ -1,13 +1,13 @@
 import { prisma } from '../../core/prisma.js';
-import { getRedis } from '../../core/redis.js';
 import { NotFoundException } from '../../core/errors.js';
 
+let cachedCategories = null;
+let cacheExpiresAt = 0;
+
 export async function listCategories() {
-  const redis = getRedis();
-  
-  if (redis) {
-    const cached = await redis.get('categories:all');
-    if (cached) return JSON.parse(cached);
+  const now = Date.now();
+  if (cachedCategories && now < cacheExpiresAt) {
+    return cachedCategories;
   }
 
   const categories = await prisma.category.findMany({
@@ -21,9 +21,8 @@ export async function listCategories() {
     orderBy: { name: 'asc' }
   });
 
-  if (redis) {
-    await redis.setex('categories:all', 300, JSON.stringify(categories));
-  }
+  cachedCategories = categories;
+  cacheExpiresAt = now + 5 * 60 * 1000; // 5 minutes cache
 
   return categories;
 }

@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   registerSchema,
   loginSchema,
+  googleAuthSchema,
 } from "../src/modules/auth/auth.schemas.js";
 import {
   updateProfileSchema,
@@ -35,6 +36,15 @@ describe("Validation Schemas", () => {
       const valid = { email: "test@example.com", password: "pass" };
       const parsed = loginSchema.parse(valid);
       expect(parsed.email).toBe("test@example.com");
+    });
+
+    it("requires a Google credential and rejects browser-supplied identity fields", () => {
+      expect(googleAuthSchema.parse({ credential: "signed-google-id-token" })).toEqual({
+        credential: "signed-google-id-token",
+      });
+      expect(() => googleAuthSchema.parse({ email: "attacker@example.com", name: "Attacker" })).toThrow();
+      expect(() => googleAuthSchema.parse({ credential: "signed-google-id-token", email: "attacker@example.com" })).toThrow();
+      expect(() => googleAuthSchema.parse({ credential: "" })).toThrow();
     });
   });
 

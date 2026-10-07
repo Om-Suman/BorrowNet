@@ -4,9 +4,6 @@ const config = {
   port: parseInt(process.env.PORT || '5000', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
   databaseUrl: process.env.DATABASE_URL,
-  redis: {
-    url: process.env.REDIS_URL || 'redis://localhost:6379',
-  },
   jwt: {
     secret: process.env.JWT_SECRET,
     refreshSecret: process.env.JWT_REFRESH_SECRET,
@@ -15,6 +12,13 @@ const config = {
   },
   cors: {
     origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  },
+  recommender: {
+    url: (process.env.RECOMMENDER_URL || 'http://localhost:8000').replace(/\/$/, ''),
+    apiKey: process.env.RECOMMENDER_API_KEY,
+  },
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID || '',
   },
   get isDev() {
     return this.nodeEnv === 'development';

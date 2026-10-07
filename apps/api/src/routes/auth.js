@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as authService from '../modules/auth/auth.service.js';
-import { registerSchema, loginSchema } from '../modules/auth/auth.schemas.js';
+import { registerSchema, loginSchema, googleAuthSchema } from '../modules/auth/auth.schemas.js';
 import validate from '../middleware/validate.js';
 import authenticate from '../middleware/authenticate.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
@@ -30,6 +30,16 @@ router.post('/register', authLimiter, validate(registerSchema), async (req, res,
 router.post('/login', authLimiter, validate(loginSchema), async (req, res, next) => {
   try {
     const { user, accessToken, refreshToken } = await authService.login(req.body);
+    res.cookie('refreshToken', refreshToken, cookieOptions);
+    success(res, { user, accessToken });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/google', authLimiter, validate(googleAuthSchema), async (req, res, next) => {
+  try {
+    const { user, accessToken, refreshToken } = await authService.googleAuth(req.body);
     res.cookie('refreshToken', refreshToken, cookieOptions);
     success(res, { user, accessToken });
   } catch (error) {

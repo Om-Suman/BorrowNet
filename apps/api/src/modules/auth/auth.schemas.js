@@ -10,3 +10,9 @@ export const loginSchema = z.object({
   email: z.string().email().trim().toLowerCase(),
   password: z.string().min(1),
 });
+
+export const googleAuthSchema = z
+  .object({
+    credential: z.string().min(1).max(10000),
+  })
+  .strict();
