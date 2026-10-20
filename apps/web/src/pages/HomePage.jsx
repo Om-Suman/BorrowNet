@@ -329,7 +329,8 @@ export default function HomePage() {
             return (
               <Card
                 key={item.id}
-                className="group flex flex-col justify-between bg-white dark:bg-[#131b2e] rounded-2xl border border-[#e2e8f0] dark:border-neutral-700 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                onClick={() => navigate(`/items/${item.id}`)}
+                className="group flex flex-col justify-between bg-white dark:bg-[#131b2e] rounded-2xl border border-[#e2e8f0] dark:border-neutral-700 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
               >
                 <div>
                   <div className="relative aspect-[4/3] bg-neutral-100 overflow-hidden">
@@ -410,10 +411,10 @@ export default function HomePage() {
                   </div>
 
                   <button
-                    onClick={() => navigate(`/browse?q=${encodeURIComponent(item.title)}`)}
+                    onClick={() => navigate(`/items/${item.id}`)}
                     className="px-4 py-2 rounded-xl bg-[#006948] hover:bg-[#005137] text-white text-xs font-semibold shadow-sm transition-all active:scale-95"
                   >
-                    Reserve
+                    View Details
                   </button>
                 </div>
               </Card>

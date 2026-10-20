@@ -31,6 +31,8 @@ describe("Endpoints mapping", () => {
   it("exposes all items API methods", () => {
     expect(itemsApi).toHaveProperty("list");
     expect(itemsApi).toHaveProperty("getById");
+    expect(itemsApi).toHaveProperty("getAvailability");
+    expect(itemsApi).toHaveProperty("createBorrowRequest");
   });
 
   it("requests related listings for a search query", () => {

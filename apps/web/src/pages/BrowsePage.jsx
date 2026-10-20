@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
   Search,
@@ -65,6 +65,7 @@ function mapApiItemToCard(item) {
 
 export default function BrowsePage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const toast = useToast();
 
   const q = searchParams.get("q") || "";
@@ -742,7 +743,7 @@ export default function BrowsePage() {
                 return (
                   <div
                     key={item.id}
-                    onClick={() => setActiveReserveItem(item)}
+                    onClick={() => navigate(`/items/${item.id}`)}
                     className="group bg-white dark:bg-[#131b2e] border border-[#e2e8f0] dark:border-neutral-700 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
                   >
                     <div>

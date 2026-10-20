@@ -36,6 +36,12 @@ export const itemsApi = {
     return apiClient(`/items${queryString ? `?${queryString}` : ""}`);
   },
   getById: (id) => apiClient(`/items/${id}`),
+  getAvailability: (id) => apiClient(`/items/${id}/availability`),
+  createBorrowRequest: (id, data) =>
+    apiClient(`/items/${id}/requests`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 };
 
 export const recommendationsApi = {
