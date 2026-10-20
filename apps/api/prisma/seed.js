@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import "dotenv/config";
 
 const prisma = new PrismaClient();
 
@@ -760,7 +761,8 @@ const itemsData = [
   },
   // 26. Cinematography: DJI Ronin-SC 3-Axis Camera Gimbal
   {
-    title: "DJI Ronin-SC 3-Axis Camera Gimbal Stabilizer",
+    title: "DJI Ronin-SC 3-Axis Gimbal Stabilizer",
+    legacyTitle: "DJI Ronin-SC 3-Axis Camera Gimbal Stabilizer",
     description:
       "Ultra-smooth motorized handheld stabilizer designed for mirrorless setups. Features mechanical axis locks, ActiveTrack 3.0 subject tracking, and smartphone mount for follow focus.",
     condition: "LIKE_NEW",
@@ -777,7 +779,115 @@ const itemsData = [
       "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1000&q=80",
     ],
   },
-  // 27. Audio Production: Focusrite Scarlett 2i2 USB Audio Interface
+  // Related-gear demo listing: Sony FE 85mm portrait lens
+  {
+    title: "Sony FE 85mm F1.8 Portrait Lens",
+    description:
+      "Fast full-frame E-mount prime lens for portraits, college film projects, interviews, and event coverage. Its wide F1.8 aperture creates soft background blur in low light. Includes hood, front and rear caps, and a padded pouch.",
+    condition: "LIKE_NEW",
+    pricePerDay: 650.0,
+    depositValue: 5000.0,
+    location: "Indiranagar, Bengaluru",
+    rules: "Keep both caps on when not mounted. Clean only with the supplied microfiber cloth.",
+    minDays: 1,
+    maxDays: 10,
+    categorySlug: "photography",
+    ownerEmail: "pooja@borrownet.com",
+    images: [
+      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1000&q=80",
+    ],
+  },
+  // Related-gear demo listing: fluid-head tripod
+  {
+    title: "Manfrotto Fluid-Head Video Tripod",
+    description:
+      "Stable aluminium tripod with a smooth fluid pan-and-tilt head for student films, interviews, travel videos, and locked-off product shots. Includes quick-release plate, carry bag, and a 5 kg payload rating.",
+    condition: "GOOD",
+    pricePerDay: 400.0,
+    depositValue: 2500.0,
+    location: "Koramangala, Bengaluru",
+    rules: "Lock the legs before carrying. Do not exceed the stated payload rating.",
+    minDays: 1,
+    maxDays: 14,
+    categorySlug: "video-film",
+    ownerEmail: "dave@borrownet.com",
+    images: [
+      "https://images.unsplash.com/photo-1502982720700-bfff97f2ecac?auto=format&fit=crop&w=1000&q=80",
+    ],
+  },
+  // Related-gear demo listing: portable LED lighting
+  {
+    title: "Aputure Amaran Bi-Color LED Panel Kit",
+    description:
+      "Portable dimmable bi-color continuous light for indoor interviews, portrait sessions, product videos, and student film sets. Includes diffuser, power adapter, light stand, and a carry case.",
+    condition: "LIKE_NEW",
+    pricePerDay: 550.0,
+    depositValue: 3000.0,
+    location: "HSR Layout, Bengaluru",
+    rules: "Allow the panel to cool before packing. Keep the adapter and diffuser with the kit.",
+    minDays: 1,
+    maxDays: 10,
+    categorySlug: "cameras-studio-lights",
+    ownerEmail: "ananya@borrownet.com",
+    images: [
+      "https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?auto=format&fit=crop&w=1000&q=80",
+    ],
+  },
+  // Related-gear demo listing: wireless interview audio
+  {
+    title: "Rode Wireless GO II Dual Microphone Kit",
+    description:
+      "Compact two-person wireless microphone kit for campus interviews, presentations, short films, and event coverage. Includes two transmitters, receiver, charging case, furry windshields, and connection cables.",
+    condition: "LIKE_NEW",
+    pricePerDay: 500.0,
+    depositValue: 3000.0,
+    location: "Indiranagar, Bengaluru",
+    rules: "Charge all units before return. Store the windshields and cables in the case pockets.",
+    minDays: 1,
+    maxDays: 7,
+    categorySlug: "audio-music",
+    ownerEmail: "priya@borrownet.com",
+    images: [
+      "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=1000&q=80",
+    ],
+  },
+  // Related-gear demo listing: rig cage and handles
+  {
+    title: "SmallRig Full-Frame Rig Cage and Top Handle",
+    description:
+      "Protective aluminium rig cage with a top handle, cold-shoe mounts, and accessory threads for building a comfortable handheld setup for short films, reels, and interviews. Includes hex keys and mounting screws.",
+    condition: "GOOD",
+    pricePerDay: 300.0,
+    depositValue: 1800.0,
+    location: "Koramangala, Bengaluru",
+    rules: "Check screw fit before mounting. Do not overtighten the supplied fasteners.",
+    minDays: 1,
+    maxDays: 10,
+    categorySlug: "video-film",
+    ownerEmail: "dave@borrownet.com",
+    images: [
+      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1000&q=80",
+    ],
+  },
+  // Related-gear demo listing: on-set monitoring
+  {
+    title: "Feelworld 5-Inch On-Camera Field Monitor",
+    description:
+      "Bright compact external field monitor with focus-assist tools for checking framing and exposure during interviews, event shoots, and student film production. Includes sun hood, HDMI cable, battery, and mounting arm.",
+    condition: "GOOD",
+    pricePerDay: 450.0,
+    depositValue: 2500.0,
+    location: "BTM Layout, Bengaluru",
+    rules: "Use the supplied HDMI cable and remove the battery for long-term storage.",
+    minDays: 1,
+    maxDays: 10,
+    categorySlug: "video-film",
+    ownerEmail: "pooja@borrownet.com",
+    images: [
+      "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1000&q=80",
+    ],
+  },
+  // 33. Audio Production: Focusrite Scarlett 2i2 USB Audio Interface
   {
     title: "Focusrite Scarlett 2i2 USB Audio Interface (4th Gen)",
     description:
@@ -796,7 +906,7 @@ const itemsData = [
       "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1000&q=80",
     ],
   },
-  // 28. DJ Gear: Pioneer DDJ-FLX4 2-Channel DJ Controller
+  // 34. DJ Gear: Pioneer DDJ-FLX4 2-Channel DJ Controller
   {
     title: "Pioneer DDJ-FLX4 2-Channel DJ Controller",
     description:
@@ -815,7 +925,7 @@ const itemsData = [
       "https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=1000&q=80",
     ],
   },
-  // 29. DIY Tools: Bosch 360° Cross-Line Laser Level
+  // 35. DIY Tools: Bosch 360° Cross-Line Laser Level
   {
     title: "Bosch Professional 360° Self-Leveling Cross-Line Laser",
     description:
@@ -834,7 +944,7 @@ const itemsData = [
       "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1000&q=80",
     ],
   },
-  // 30. Lawn & Garden: Husqvarna Petrol Chainsaw
+  // 36. Lawn & Garden: Husqvarna Petrol Chainsaw
   {
     title: "Husqvarna 16-Inch Petrol Chainsaw (Safety Helmet & Chaps)",
     description:
@@ -853,7 +963,7 @@ const itemsData = [
       "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1000&q=80",
     ],
   },
-  // 31. Lawn & Garden: Black+Decker Cordless Hedge Trimmer
+  // 37. Lawn & Garden: Black+Decker Cordless Hedge Trimmer
   {
     title: "Black+Decker 20V Cordless 22-Inch Hedge Trimmer",
     description:
@@ -872,7 +982,7 @@ const itemsData = [
       "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1000&q=80",
     ],
   },
-  // 32. Camping & Trail: Camp Chef 2-Burner Outdoor Camp Stove
+  // 38. Camping & Trail: Camp Chef 2-Burner Outdoor Camp Stove
   {
     title: "Camp Chef Explorer 2-Burner Outdoor Camp Stove",
     description:
@@ -892,6 +1002,113 @@ const itemsData = [
     ],
   },
 ];
+
+// Extra catalog neighbors make recommendations useful across every seeded category.
+const relatedDemoImages = {
+  "power-tools": [
+    "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=1000&q=80",
+  ],
+  "pressure-cleaning": [
+    "https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1557429287-b2e26467fc2b?auto=format&fit=crop&w=1000&q=80",
+  ],
+  "outdoor-diy-rigging": [
+    "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1000&q=80",
+  ],
+  "generators-site-power": [
+    "https://eu.ecoflow.com/cdn/shop/files/ecoflow-river-2-portable-power-station-ch-version-1207399655_1066x.png?v=1763555450",
+    "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=1000&q=80",
+  ],
+  "pressure-washing-landscaping": [
+    "https://images.unsplash.com/photo-1557429287-b2e26467fc2b?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=1000&q=80",
+  ],
+  "sound-systems-projectors": [
+    "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1000&q=80",
+    "https://www.australismusic.com.au/Files/Images/2021_productImages/000-EWI00-00010_2.png",
+  ],
+  "kayaks-mobility": [
+    "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1000&q=80",
+  ],
+  "electronics-tech": [
+    "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=1000&q=80",
+  ],
+  "plumbing-drains": [
+    "https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=1000&q=80",
+  ],
+  "musical-instruments": [
+    "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1000&q=80",
+  ],
+  "sports-fitness": [
+    "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=1000&q=80",
+  ],
+  "kitchen-cooking": [
+    "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1000&q=80",
+  ],
+  "diy-workshop": [
+    "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=1000&q=80",
+  ],
+};
+const relatedImageIndex = new Map();
+const relatedDemoListings = [
+  ["Bosch Professional 18V Impact Driver", "Compact brushless impact driver for driving long screws, assembling furniture, and completing renovation work alongside a cordless drill. Includes two batteries, charger, and bit set.", "power-tools", "alex@borrownet.com", 400, 2000, "Indiranagar, Bengaluru"],
+  ["DeWalt 20V Oscillating Multi-Tool Kit", "Versatile cordless cutting and sanding tool for flush cuts, grout removal, and detail work during home repairs. Includes wood and metal blades, sanding pad, battery, and charger.", "power-tools", "chloe@borrownet.com", 450, 2200, "HSR Layout, Bengaluru"],
+  ["Kärcher 16-Inch Pressure Washer Surface Cleaner", "Rotating dual-nozzle attachment for cleaning wide patios, tiled terraces, driveways, and apartment parking areas evenly with less splash than a standard lance.", "pressure-cleaning", "dave@borrownet.com", 350, 1800, "Koramangala, Bengaluru"],
+  ["Foam Cannon and 10-Metre Wash Hose Kit", "Quick-connect foam cannon with adjustable spray pattern and a reinforced extension hose for two-wheelers, cars, balconies, and outdoor furniture. Compatible adapters included.", "pressure-cleaning", "alex@borrownet.com", 250, 1200, "Indiranagar, Bengaluru"],
+  ["Werner Multi-Position Ladder Stabilizer", "Wide stand-off stabilizer that improves clearance around gutters and provides a broader contact stance for painting, exterior maintenance, and safe access work.", "outdoor-diy-rigging", "sarah@borrownet.com", 250, 1500, "Koramangala, Bengaluru"],
+  ["Full-Body Fall-Arrest Safety Harness Kit", "Adjustable full-body harness with lanyard and anchor strap for supervised elevated maintenance and construction tasks. Supplied with inspection checklist and storage bag.", "outdoor-diy-rigging", "sarah@borrownet.com", 350, 2500, "Koramangala, Bengaluru"],
+  ["EcoFlow 1kWh Portable Power Station", "Rechargeable backup power for laptops, lights, routers, and small production equipment during campus events or planned outages. Includes AC, USB-C, and car charging outputs.", "generators-site-power", "elena@borrownet.com", 900, 7000, "Indiranagar, Bengaluru"],
+  ["25-Metre Heavy-Duty Outdoor Extension Reel", "Weather-resistant cable reel with overload protection for temporary outdoor work sites, garden projects, and event equipment. Fully unwind before connecting high-load appliances.", "generators-site-power", "elena@borrownet.com", 180, 1000, "Indiranagar, Bengaluru"],
+  ["Honda-Compatible 15-Inch Rotary Surface Cleaner", "Stainless rotary deck attachment for restoring large paved areas, apartment driveways, and outdoor tiled spaces with a more even finish than a narrow spray tip.", "pressure-washing-landscaping", "alex@borrownet.com", 400, 2200, "Indiranagar, Bengaluru"],
+  ["Snow-Foam Cannon with Vehicle Detailing Kit", "Adjustable detergent cannon with soft wash mitt and microfiber drying towels for weekend vehicle detailing. Includes the quick-connect adapter and a measured soap bottle.", "pressure-washing-landscaping", "dave@borrownet.com", 220, 1200, "Koramangala, Bengaluru"],
+  ["Epson Portable Full-HD Projector", "Portable bright projector for classroom presentations, society screenings, and small event setups. Includes HDMI cable, remote, carry case, and a foldable projection screen.", "sound-systems-projectors", "pooja@borrownet.com", 1200, 7000, "Indiranagar, Bengaluru"],
+  ["Behringer 8-Channel Compact Audio Mixer", "Compact mixer with microphone preamps, stereo inputs, and simple EQ for connecting microphones and speakers at college events, talks, and small performances.", "sound-systems-projectors", "pooja@borrownet.com", 650, 3500, "Indiranagar, Bengaluru"],
+  ["Intex Explorer K2 Tandem Inflatable Kayak", "Two-person inflatable kayak kit with aluminium paddles, hand pump, and removable skegs for calm-water outings at approved lakes and coastal locations. Packs into a carry bag.", "kayaks-mobility", "marcus@borrownet.com", 900, 4500, "Indiranagar, Bengaluru"],
+  ["Two-Person Kayak Safety and Dry-Bag Kit", "Pair of adjustable personal flotation devices, waterproof phone pouch, throw line, and compact dry bag for a short paddling trip. Check local water rules before use.", "kayaks-mobility", "marcus@borrownet.com", 300, 1800, "Indiranagar, Bengaluru"],
+  ["DJI Mini Series Intelligent Flight Battery Pair", "Two spare intelligent flight batteries and a charging hub to extend a day of aerial photography and travel filming. Includes protective battery case and charging cable.", "electronics-tech", "ananya@borrownet.com", 600, 4000, "Koramangala, Bengaluru"],
+  ["Foldable Drone Landing Pad and Safety Kit", "High-visibility foldable landing mat with spare propellers, tool, and carry pouch for cleaner take-offs and landings on dusty fields and uneven outdoor locations.", "electronics-tech", "ananya@borrownet.com", 250, 1300, "Koramangala, Bengaluru"],
+  ["Ridgid Compact Pipe Inspection Scope", "Water-resistant inspection scope with a flexible camera cable and display for checking hard-to-reach pipe sections before choosing a cleaning approach. Includes spare batteries and case.", "plumbing-drains", "keith@borrownet.com", 550, 3000, "Whitefield, Bengaluru"],
+  ["Heavy-Duty Pipe Wrench and Drain-Clearing Kit", "Two pipe wrenches, hand auger, gloves, and drain-cleaning tools for routine sink and bathroom maintenance. Supplied in a labelled carry case.", "plumbing-drains", "keith@borrownet.com", 300, 1600, "Whitefield, Bengaluru"],
+  ["Fender Frontman 20G Guitar Practice Amplifier", "Compact guitar amplifier with clean and drive channels, headphone output, and auxiliary input for home practice, beginner lessons, and small jam sessions.", "musical-instruments", "priya@borrownet.com", 450, 2500, "Hauz Khas, New Delhi"],
+  ["Casio 61-Key Portable Keyboard with Stand", "Portable 61-key keyboard with lesson modes, built-in tones, music rest, power adapter, and folding stand for practice, rehearsals, and college performances.", "musical-instruments", "priya@borrownet.com", 500, 3000, "Hauz Khas, New Delhi"],
+  ["Giro Adjustable Cycling Helmet and Light Set", "Adjustable ventilated cycling helmet paired with front and rear rechargeable lights for safer early-morning rides and indoor trainer sessions. Cleaned and inspected between loans.", "sports-fitness", "vikram@borrownet.com", 250, 1500, "HSR Layout, Bengaluru"],
+  ["Thule Rear-Mounted Two-Bike Carrier", "Foldable rear-mounted carrier for transporting two bicycles to a trail or weekend ride. Includes frame straps and fitting instructions; verify vehicle compatibility before booking.", "sports-fitness", "vikram@borrownet.com", 700, 5000, "HSR Layout, Bengaluru"],
+  ["Baratza Encore Coffee Grinder", "Conical burr grinder with stepped settings for espresso-style brews, pour-over, and French press. Includes hopper, grounds bin, cleaning brush, and quick-start guide.", "kitchen-cooking", "ananya@borrownet.com", 350, 2200, "Koramangala, Bengaluru"],
+  ["Digital Coffee Scale and Pour-Over Starter Kit", "Precision scale with timer, kettle, dripper, and reusable server for measuring consistent coffee recipes at home or in a shared kitchen.", "kitchen-cooking", "ananya@borrownet.com", 220, 1300, "Koramangala, Bengaluru"],
+  ["Fluke Digital Multimeter and Test Lead Set", "Portable digital meter for checking voltage, continuity, and resistance during electronics repairs, workshop projects, and basic home troubleshooting. Includes leads and protective case.", "diy-workshop", "kabir@borrownet.com", 300, 1800, "Koregaon Park, Pune"],
+  ["Dremel 3000 Rotary Tool Accessory Kit", "Variable-speed rotary tool with cutting, sanding, polishing, and engraving accessories for model making, small repairs, and detailed craft projects.", "diy-workshop", "kabir@borrownet.com", 350, 2000, "Koregaon Park, Pune"],
+].map(([title, description, categorySlug, ownerEmail, pricePerDay, depositValue, location]) => {
+  const imageOptions = relatedDemoImages[categorySlug] || [];
+  const imageIndex = relatedImageIndex.get(categorySlug) || 0;
+  relatedImageIndex.set(categorySlug, imageIndex + 1);
+  const image = imageOptions[imageIndex % imageOptions.length];
+
+  return {
+    title,
+    description,
+    condition: "GOOD",
+    pricePerDay,
+    depositValue,
+    location,
+    rules: "Return the item clean, with all included parts and accessories in its case.",
+    minDays: 1,
+    maxDays: 7,
+    categorySlug,
+    ownerEmail,
+    images: image ? [image] : [],
+  };
+});
+
+itemsData.push(...relatedDemoListings);
 
 async function main() {
   console.log("Seeding categories...");
@@ -945,10 +1162,7 @@ async function main() {
     userMap.set(u.email, user.id);
   }
 
-  console.log("Resetting and seeding Indian equipment catalog with unique photos...");
-  // Clean up existing item images and items for fresh Indian catalog
-  await prisma.itemImage.deleteMany();
-  await prisma.item.deleteMany();
+  console.log("Upserting Indian equipment demo catalog...");
 
   for (const item of itemsData) {
     const categoryId = categoryMap.get(item.categorySlug);
@@ -959,36 +1173,48 @@ async function main() {
       continue;
     }
 
-    const itemRecord = await prisma.item.create({
-      data: {
-        title: item.title,
-        description: item.description,
-        condition: item.condition,
-        pricePerDay: item.pricePerDay,
-        depositValue: item.depositValue,
-        location: item.location,
-        rules: item.rules,
-        minDays: item.minDays,
-        maxDays: item.maxDays,
+    const existingItem = await prisma.item.findFirst({
+      where: {
         ownerId,
-        categoryId,
-        status: "ACTIVE",
+        title: { in: [item.title, item.legacyTitle].filter(Boolean) },
       },
+      select: { id: true },
     });
+    const itemData = {
+      title: item.title,
+      description: item.description,
+      condition: item.condition,
+      pricePerDay: item.pricePerDay,
+      depositValue: item.depositValue,
+      location: item.location,
+      rules: item.rules,
+      minDays: item.minDays,
+      maxDays: item.maxDays,
+      ownerId,
+      categoryId,
+      status: "ACTIVE",
+    };
+    const imageData = item.images.map((url, order) => ({ url, order }));
+    const itemRecord = existingItem
+      ? await prisma.item.update({
+          where: { id: existingItem.id },
+          data: {
+            ...itemData,
+            images: { deleteMany: {}, create: imageData },
+          },
+        })
+      : await prisma.item.create({
+          data: { ...itemData, images: { create: imageData } },
+        });
 
-    for (let i = 0; i < item.images.length; i++) {
-      await prisma.itemImage.create({
-        data: {
-          itemId: itemRecord.id,
-          url: item.images[i],
-          order: i,
-        },
-      });
-    }
+    // Force a fresh vector after demo text or category changes; backfill after seeding.
+    await prisma.$executeRaw`UPDATE "Item" SET "embedding" = NULL WHERE "id" = ${itemRecord.id}`;
+
+    console.log(`Seeded listing: ${itemRecord.title}`);
   }
 
   console.log(
-    `Seed completed successfully! Seeded ${categories.length} categories, ${usersData.length} unique users, and ${itemsData.length} items with unique images.`
+    `Seed completed successfully! Upserted ${categories.length} categories, ${usersData.length} users, and ${itemsData.length} demo listings. Other listings were preserved.`
   );
 }
 

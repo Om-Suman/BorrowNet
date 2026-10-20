@@ -173,10 +173,28 @@ async function verifyGoogleToken(rawToken) {
     const ticket = await googleOAuthClient.verifyIdToken({ idToken: rawToken, audience: clientId });
     payload = ticket.getPayload();
   } catch {
-    throw new UnauthorizedException('Invalid or expired Google credential.');
+    // Fallback to Google tokeninfo endpoint if local cert verification had a network/clock skew issue
+    try {
+      const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(rawToken)}`, {
+        signal: AbortSignal.timeout(8000),
+      });
+      if (res.ok) {
+        const info = await res.json();
+        if (info.aud === clientId) {
+          payload = info;
+        } else {
+          throw new UnauthorizedException('Google token audience mismatch.');
+        }
+      } else {
+        throw new Error('Tokeninfo rejected');
+      }
+    } catch {
+      throw new UnauthorizedException('Invalid or expired Google credential.');
+    }
   }
 
-  if (!payload?.sub || !payload.email || payload.email_verified !== true) {
+  const isEmailVerified = payload?.email_verified === true || payload?.email_verified === 'true';
+  if (!payload?.sub || !payload.email || !isEmailVerified) {
     throw new UnauthorizedException('Google did not return a verified account identity.');
   }
 

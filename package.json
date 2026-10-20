@@ -7,9 +7,10 @@
     "apps/web"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace apps/api\" \"npm run dev --workspace apps/web\"",
+    "dev": "concurrently -k -n api,web,recommender \"npm run dev --workspace apps/api\" \"npm run dev --workspace apps/web\" \"npm run dev:recommender\"",
     "dev:api": "npm run dev --workspace apps/api",
     "dev:web": "npm run dev --workspace apps/web",
+    "dev:recommender": "cd services\\recommender && .venv\\Scripts\\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000",
     "build": "npm run build --workspace apps/web",
     "check": "npm run check --workspace apps/api && npm run check --workspace apps/web && npm run build --workspace apps/web",
     "test": "npm run test --workspace apps/api && npm run test --workspace apps/web"
