@@ -1,5 +1,12 @@
-import { describe, it, expect } from "vitest";
-import { authApi, usersApi, categoriesApi, itemsApi } from "./endpoints.js";
+import { beforeEach, describe, it, expect, vi } from "vitest";
+import { authApi, usersApi, categoriesApi, itemsApi, recommendationsApi } from "./endpoints.js";
+import { apiClient } from "./client.js";
+
+vi.mock("./client.js", () => ({ apiClient: vi.fn() }));
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("Endpoints mapping", () => {
   it("exposes all auth API methods", () => {
@@ -24,5 +31,13 @@ describe("Endpoints mapping", () => {
   it("exposes all items API methods", () => {
     expect(itemsApi).toHaveProperty("list");
     expect(itemsApi).toHaveProperty("getById");
+  });
+
+  it("requests related listings for a search query", () => {
+    recommendationsApi.related({ q: "cordless drill", limit: 6 });
+
+    expect(apiClient).toHaveBeenCalledWith(
+      "/recommendations/related?q=cordless+drill&limit=6",
+    );
   });
 });

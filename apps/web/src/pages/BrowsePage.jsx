@@ -12,195 +12,56 @@ import {
   Heart,
   Grid,
   Map as MapIcon,
-  ChevronDown,
-  Check,
-  RotateCcw,
-  Plus,
   Sparkles,
-  ChevronLeft,
-  ChevronRight,
   Truck,
   PackageCheck,
   Award,
 } from "lucide-react";
-import { categoriesApi, itemsApi } from "../api/endpoints";
+import { categoriesApi, itemsApi, recommendationsApi } from "../api/endpoints";
 import useDebounce from "../hooks/useDebounce";
 import Modal from "../components/ui/Modal";
 import Button from "../components/ui/Button";
 import { useToast } from "../context/ToastContext";
+import { selectUniqueRecommendations } from "../utils/recommendations.js";
 
-// Fallback curated equipment inventory matching reference mockup
-const DEFAULT_HARDWARE_ITEMS = [
-  {
-    id: "milwaukee-m18",
-    name: "Milwaukee M18 FUEL Hammer Drill & Impact Driver Set (2x Batt...)",
-    category: "Drills & Fastening",
-    categorySlug: "power-tools",
-    rating: 4.9,
-    reviewsCount: 38,
-    rate: 550,
-    deposit: 2500,
-    condition: "Like New",
-    distance: "1.1 km",
-    locality: "Indiranagar, Bengaluru",
-    lenderName: "Alex T.",
-    lenderInitials: "AT",
-    tags: ["Instant Book", "Super Lender"],
-    image:
-      "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "simpson-megablaster",
-    name: "Simpson Megablaster 3400 PSI Commercial Pressure Washer",
-    category: "Surface Cleaning",
-    categorySlug: "pressure-cleaning",
-    rating: 5.0,
-    reviewsCount: 24,
-    rate: 899,
-    deposit: 4000,
-    condition: "Excellent",
-    distance: "2.3 km",
-    locality: "Koramangala, Bengaluru",
-    lenderName: "Dave M.",
-    lenderInitials: "DM",
-    tags: ["Top Choice", "Instant Book"],
-    image:
-      "https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "dewalt-12-miter",
-    name: "DeWalt 12-Inch Sliding Compound Miter Saw with Mobile Stand",
-    category: "Cutting & Saws",
-    categorySlug: "power-tools",
-    rating: 4.85,
-    reviewsCount: 16,
-    rate: 750,
-    deposit: 3500,
-    condition: "Excellent",
-    distance: "3.4 km",
-    locality: "HSR Layout, Bengaluru",
-    lenderName: "Chloe S.",
-    lenderInitials: "CS",
-    tags: ["Instant Book"],
-    image:
-      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "ryobi-40v-mower",
-    name: "Ryobi 40V Cordless Brushless Lawn Mower + Fast Charger Kit",
-    category: "Lawn Maintenance",
-    categorySlug: "lawn-garden-machinery",
-    rating: 4.9,
-    reviewsCount: 29,
-    rate: 650,
-    deposit: 3000,
-    condition: "Like New",
-    distance: "1.6 km",
-    locality: "Indiranagar, Bengaluru",
-    lenderName: "Marcus P.",
-    lenderInitials: "MP",
-    tags: ["Super Lender", "Instant Book"],
-    image:
-      "https://images.unsplash.com/photo-1592417817098-8f3d69109853?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "bosch-sds-max",
-    name: "Bosch 1-9/16 in. SDS-Max Rotary Hammer with Chisels & Case",
-    category: "Demolition & Masonry",
-    categorySlug: "power-tools",
-    rating: 5.0,
-    reviewsCount: 11,
-    rate: 950,
-    deposit: 4500,
-    condition: "Like New",
-    distance: "4.0 km",
-    locality: "Whitefield, Bengaluru",
-    lenderName: "Keith B.",
-    lenderInitials: "KB",
-    tags: ["Instant Book"],
-    image:
-      "https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "little-giant-ladder",
-    name: "Little Giant King Kombo 3-in-1 Fiberglass Extension Ladder",
-    category: "Ladders & Scaffolding",
-    categorySlug: "outdoor-diy-rigging",
-    rating: 4.95,
-    reviewsCount: 44,
-    rate: 450,
-    deposit: 2000,
-    condition: "Excellent",
-    distance: "2.1 km",
-    locality: "Koramangala, Bengaluru",
-    lenderName: "Sarah J.",
-    lenderInitials: "SJ",
-    tags: ["Super Lender", "Instant Book"],
-    image:
-      "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "stihl-leaf-blower",
-    name: "STIHL Gas Powered Backpack Leaf Blower (Full Tank Inc.)",
-    category: "Yard Cleanup",
-    categorySlug: "lawn-garden-machinery",
-    rating: 4.8,
-    reviewsCount: 19,
-    rate: 599,
-    deposit: 2500,
-    condition: "Good",
-    distance: "3.2 km",
-    locality: "BTM Layout, Bengaluru",
-    lenderName: "Ryan W.",
-    lenderInitials: "RW",
-    tags: ["Instant Book"],
-    image:
-      "https://images.unsplash.com/photo-1617196034183-421b4917c92d?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "generac-3300-generator",
-    name: "Generac 3300-Watt Portable Inverter Generator (Ultra Quiet)",
-    category: "Power & Backup",
-    categorySlug: "generators-site-power",
-    rating: 5.0,
-    reviewsCount: 32,
-    rate: 1100,
-    deposit: 5000,
-    condition: "Like New",
-    distance: "4.5 km",
-    locality: "Indiranagar, Bengaluru",
-    lenderName: "Elena R.",
-    lenderInitials: "ER",
-    tags: ["Top Choice", "Super Lender"],
-    image:
-      "https://images.unsplash.com/photo-1609137144822-261541484643?auto=format&fit=crop&w=600&q=80",
-  },
-];
+const FALLBACK_ITEM_IMAGE = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240"><rect width="320" height="240" fill="#eef2f7"/><path d="M96 158l36-40 25 27 21-22 46 52H96z" fill="#cbd5e1"/><circle cx="126" cy="85" r="13" fill="#cbd5e1"/><rect x="72" y="54" width="176" height="132" rx="12" fill="none" stroke="#94a3b8" stroke-width="8"/></svg>',
+)}`;
 
-// Bundled accessories for ML recommendation strip
-const BUNDLE_ACCESSORIES = [
-  {
-    id: "b1",
-    title: "100ft Heavy-Duty Cord",
-    desc: "12-Gauge All-Weather",
-    price: 150,
-    image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=120&q=80",
-  },
-  {
-    id: "b2",
-    title: "Stud Finder Pro Multi-LED",
-    desc: "Deep wall radar sensor",
-    price: 120,
-    image: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=120&q=80",
-  },
-  {
-    id: "b3",
-    title: "3M Ear & Eye Protection Kit",
-    desc: "Sanitized after every loan",
-    price: 90,
-    image: "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?auto=format&fit=crop&w=120&q=80",
-  },
-];
+function handleListingImageError(event) {
+  event.currentTarget.onerror = null;
+  event.currentTarget.src = FALLBACK_ITEM_IMAGE;
+}
+
+function mapApiItemToCard(item) {
+  const ownerName = item.owner?.name || "Owner";
+  return {
+    id: item.id,
+    name: item.title,
+    category: item.category?.name || "Uncategorized",
+    categorySlug: item.category?.slug || "",
+    rating: Number(item.averageRating || 0),
+    reviewsCount: item.reviewCount || 0,
+    rate: Number(item.pricePerDay || 0),
+    deposit: Number(item.depositValue || 0),
+    condition:
+      item.condition === "LIKE_NEW"
+        ? "Like New"
+        : item.condition === "NEW"
+        ? "Brand New"
+        : item.condition === "GOOD"
+        ? "Good"
+        : (item.condition || "Not specified"),
+    distance: item.location || item.owner?.location || "Location not provided",
+    locality: item.location || item.owner?.location || "Location not provided",
+    lenderName: ownerName,
+    lenderInitials: ownerName.substring(0, 2).toUpperCase(),
+    tags: [],
+    image:
+      item.images?.[0]?.url ||
+      FALLBACK_ITEM_IMAGE,
+  };
+}
 
 export default function BrowsePage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -253,7 +114,6 @@ export default function BrowsePage() {
   const [activeReserveItem, setActiveReserveItem] = useState(null);
   const [reserveDays, setReserveDays] = useState(3);
   const [isReserving, setIsReserving] = useState(false);
-  const [addedBundles, setAddedBundles] = useState(new Set());
 
   // API query for categories
   const { data: categoriesData } = useQuery({
@@ -273,56 +133,14 @@ export default function BrowsePage() {
     ? apiItemsData.data
     : (apiItemsData?.data?.items || []);
 
-  // Merge API items with default hardware mockup items
-  const allItems = useMemo(() => {
-    if (apiItems.length > 0) {
-      // Map API items to unified card structure if needed
-      return apiItems.map((item) => ({
-        id: item.id,
-        name: item.title,
-        category: item.category?.name || "General Hardware",
-        categorySlug: item.category?.slug || "power-tools",
-        rating: Number(item.averageRating || 4.9),
-        reviewsCount: item.reviewCount || 12,
-        rate: Number(item.pricePerDay || 650),
-        deposit: Number(item.depositValue || 2500),
-        condition:
-          item.condition === "LIKE_NEW"
-            ? "Like New"
-            : item.condition === "NEW"
-            ? "Brand New"
-            : item.condition === "GOOD"
-            ? "Good"
-            : (item.condition || "Excellent"),
-        distance: "1.5 km",
-        locality: item.location || "Indiranagar, Bengaluru",
-        lenderName: item.owner?.name || "Verified Neighbor",
-        lenderInitials: (item.owner?.name || "VN").substring(0, 2).toUpperCase(),
-        tags: ["Instant Book"],
-        image:
-          item.images?.[0]?.url ||
-          "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=600&q=80",
-      }));
-    }
-    return DEFAULT_HARDWARE_ITEMS;
-  }, [apiItems]);
+  const allItems = useMemo(() => apiItems.map(mapApiItemToCard), [apiItems]);
 
-  const availableCategories = useMemo(() => {
-    const list = [
-      { label: "Power Tools", slug: "power-tools" },
-      { label: "Pressure Cleaning", slug: "pressure-cleaning" },
-      { label: "Lawn & Garden Machinery", slug: "lawn-garden-machinery" },
-      { label: "Generators & Site Power", slug: "generators-site-power" },
-      { label: "Tents & Trail Gear", slug: "tents-trail-gear" },
-      { label: "Cameras & Studio Lights", slug: "cameras-studio-lights" },
-      { label: "Carpentry & Saws", slug: "carpentry-woodworking" },
-      { label: "Outdoor DIY Rigging", slug: "outdoor-diy-rigging" },
-    ];
-    return list.map((cat) => ({
-      ...cat,
-      count: allItems.filter((i) => i.categorySlug === cat.slug).length,
-    }));
-  }, [allItems]);
+  const categoryRows = Array.isArray(categoriesData?.data) ? categoriesData.data : [];
+  const availableCategories = categoryRows.map((category) => ({
+    label: category.name,
+    slug: category.slug,
+    count: category._count?.items ?? 0,
+  }));
 
   // Client-side filtering
   const filteredItems = useMemo(() => {
@@ -358,7 +176,7 @@ export default function BrowsePage() {
       if (quickUnderBudget && item.rate > 700) return false;
 
       // Quick filter: top rated (>= 4.9)
-      if (quickTopRated && item.rating < 4.9) return false;
+      if (quickTopRated && !item.rating) return false;
 
       // Quick filter / trust toggle: instant booking
       if ((quickInstant || instantOnly) && !item.tags.includes("Instant Book")) {
@@ -385,6 +203,47 @@ export default function BrowsePage() {
     instantOnly,
     superLendersOnly,
   ]);
+
+  const recommendationQuery = debouncedSearch.trim();
+  const recommendationAnchor = apiItems.find(({ id }) => id === filteredItems[0]?.id);
+  const {
+    data: recommendationsData,
+    isLoading: recommendationsLoading,
+    isError: recommendationsError,
+  } = useQuery({
+    queryKey: ["recommendations", "related", recommendationQuery, recommendationAnchor?.id],
+    queryFn: () => recommendationsApi.related(
+      recommendationAnchor
+        ? { itemId: recommendationAnchor.id, limit: 20 }
+        : { q: recommendationQuery, limit: 20 },
+    ),
+    enabled: recommendationQuery.length >= 2,
+    staleTime: 1000 * 60,
+    retry: false,
+  });
+
+  const recommendedItems = useMemo(() => {
+    const items = Array.isArray(recommendationsData?.data) ? recommendationsData.data : [];
+    return selectUniqueRecommendations(items, filteredItems, 20).map(mapApiItemToCard);
+  }, [filteredItems, recommendationsData]);
+
+  const searchItemsWithRelated = useMemo(() => {
+    const directItems = filteredItems.map((item) => ({ ...item, isRelated: false }));
+    const relatedItems = recommendedItems.map((item) => ({ ...item, isRelated: true }));
+    const results = [];
+
+    directItems.forEach((item, index) => {
+      results.push(item);
+      if (relatedItems[index]) results.push(relatedItems[index]);
+    });
+    results.push(...relatedItems.slice(directItems.length));
+    return results;
+  }, [filteredItems, recommendedItems]);
+
+  const handleConfirmReservation = () => {
+    setActiveReserveItem(null);
+    toast.info("Borrow requests cannot be submitted from this screen yet.");
+  };
 
   const toggleWishlist = (id) => {
     setWishlist((prev) => {
@@ -429,30 +288,6 @@ export default function BrowsePage() {
     toast.info("All filters have been reset.");
   };
 
-  const handleToggleBundle = (bId) => {
-    setAddedBundles((prev) => {
-      const next = new Set(prev);
-      if (next.has(bId)) {
-        next.delete(bId);
-        toast.info("Bundle accessory removed");
-      } else {
-        next.add(bId);
-        toast.success("Added accessory to your project kit!");
-      }
-      return next;
-    });
-  };
-
-  const handleConfirmReservation = () => {
-    setIsReserving(true);
-    setTimeout(() => {
-      setIsReserving(false);
-      setActiveReserveItem(null);
-      toast.success(
-        `Reservation confirmed for ${activeReserveItem.name}! No charges will clear until handoff.`
-      );
-    }, 600);
-  };
 
   return (
     <div className="space-y-6 pb-16 text-[#131b2e] dark:text-white">
@@ -488,7 +323,7 @@ export default function BrowsePage() {
           ) : null}
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-neutral-800 border border-[#e2e8f0] dark:border-neutral-700 shadow-sm font-semibold">
             <MapPin className="w-3.5 h-3.5 text-[#006948] dark:text-[#68dba9]" />
-            <span>Bengaluru (within {distanceKm} km)</span>
+            <span>All locations</span>
           </div>
         </div>
 
@@ -568,10 +403,20 @@ export default function BrowsePage() {
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-2xl sm:text-3xl font-display font-extrabold tracking-tight">
-              Available Hardware in Bengaluru
+              Available items
             </h1>
             <span className="px-2.5 py-0.5 rounded-full bg-[#ecfdf5] dark:bg-emerald-950/60 border border-[#a7f3d0] dark:border-emerald-800 text-[#006948] dark:text-[#68dba9] text-xs font-bold">
-              {filteredItems.length} Items live
+              {filteredItems.length} matches
+              {recommendationQuery.length >= 2 && (
+                <>
+                  <span className="mx-1" aria-hidden="true">·</span>
+                  {recommendationsLoading
+                    ? "Finding related…"
+                    : recommendationsError
+                      ? "Related unavailable"
+                      : `${recommendedItems.length} related`}
+                </>
+              )}
             </span>
           </div>
           <p className="text-xs sm:text-sm text-[#475569] dark:text-neutral-400 mt-0.5">
@@ -865,64 +710,23 @@ export default function BrowsePage() {
             <div className="h-64 bg-[#f2f4ff] dark:bg-neutral-800 rounded-2xl border border-[#e2e8f0] dark:border-neutral-700 p-4 relative overflow-hidden flex flex-col justify-between">
               <div className="flex justify-between items-center z-10">
                 <span className="text-xs font-bold px-3 py-1 rounded-full bg-white dark:bg-black/70 shadow-sm">
-                  📍 Map View: Bengaluru Hyper-Local Hubs
+                  Map preview
                 </span>
                 <span className="text-[11px] text-[#6d7a72] dark:text-neutral-300 bg-white/80 dark:bg-black/60 px-2 py-0.5 rounded-md">
                   Active radius: {distanceKm} km
                 </span>
               </div>
 
-              {/* Pin Clusters */}
-              <div className="relative w-full h-full flex items-center justify-around z-10">
-                <div className="text-center group cursor-pointer">
-                  <div className="w-8 h-8 rounded-full bg-[#006948] text-white flex items-center justify-center font-bold text-xs shadow-lg animate-bounce">
-                    18
-                  </div>
-                  <span className="text-[10px] font-bold bg-white dark:bg-black px-1.5 py-0.5 rounded shadow mt-1 inline-block">
-                    Indiranagar
-                  </span>
-                </div>
-
-                <div className="text-center group cursor-pointer">
-                  <div className="w-8 h-8 rounded-full bg-[#006948] text-white flex items-center justify-center font-bold text-xs shadow-lg">
-                    24
-                  </div>
-                  <span className="text-[10px] font-bold bg-white dark:bg-black px-1.5 py-0.5 rounded shadow mt-1 inline-block">
-                    Koramangala
-                  </span>
-                </div>
-
-                <div className="text-center group cursor-pointer">
-                  <div className="w-8 h-8 rounded-full bg-[#006948] text-white flex items-center justify-center font-bold text-xs shadow-lg">
-                    14
-                  </div>
-                  <span className="text-[10px] font-bold bg-white dark:bg-black px-1.5 py-0.5 rounded shadow mt-1 inline-block">
-                    HSR Layout
-                  </span>
-                </div>
-
-                <div className="text-center group cursor-pointer">
-                  <div className="w-8 h-8 rounded-full bg-[#006948] text-white flex items-center justify-center font-bold text-xs shadow-lg">
-                    12
-                  </div>
-                  <span className="text-[10px] font-bold bg-white dark:bg-black px-1.5 py-0.5 rounded shadow mt-1 inline-block">
-                    Whitefield
-                  </span>
-                </div>
-              </div>
-
-              <div className="text-[11px] text-center text-[#6d7a72] dark:text-neutral-400 z-10">
-                Click any cluster to narrow search to that neighborhood.
-              </div>
+              <div className="flex h-full items-center justify-center text-sm text-[#6d7a72] dark:text-neutral-400">Map markers are unavailable because the catalog API does not provide coordinates.</div>
             </div>
           )}
 
-          {filteredItems.length === 0 ? (
+          {searchItemsWithRelated.length === 0 ? (
             <div className="text-center py-16 bg-white dark:bg-[#131b2e] rounded-2xl border border-[#e2e8f0] dark:border-neutral-700 p-8 space-y-4">
               <PackageCheck className="w-12 h-12 text-[#6d7a72] mx-auto" />
               <h3 className="text-lg font-bold">No equipment found matching filters</h3>
               <p className="text-xs text-[#6d7a72] max-w-sm mx-auto">
-                Try widening your price range, distance slider, or removing selected tags.
+                Try changing the search, category, price, or condition filters.
               </p>
               <button
                 onClick={handleResetFilters}
@@ -933,7 +737,7 @@ export default function BrowsePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredItems.map((item) => {
+              {searchItemsWithRelated.map((item) => {
                 const isSaved = wishlist.has(item.id);
                 return (
                   <div
@@ -947,11 +751,18 @@ export default function BrowsePage() {
                         <img
                           src={item.image}
                           alt={item.name}
+                          onError={handleListingImageError}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
 
                         {/* Top Left Status Pills */}
                         <div className="absolute top-2.5 left-2.5 flex flex-col gap-1 items-start">
+                          {item.isRelated && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#ecfdf5] text-[#006948] text-[10px] font-extrabold shadow-sm border border-[#a7f3d0]">
+                              <Sparkles className="w-2.5 h-2.5" />
+                              <span>Related</span>
+                            </span>
+                          )}
                           {item.tags.includes("Instant Book") && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#fea619] text-[#131b2e] text-[10px] font-extrabold shadow-sm">
                               <Zap className="w-2.5 h-2.5" />
@@ -995,7 +806,7 @@ export default function BrowsePage() {
                           </span>
                           <span className="px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-white border border-white/20 flex items-center gap-0.5">
                             <MapPin className="w-2.5 h-2.5 text-[#68dba9]" />
-                            <span>{item.distance}</span>
+                            <span>{item.locality}</span>
                           </span>
                         </div>
                       </div>
@@ -1010,7 +821,7 @@ export default function BrowsePage() {
                           <div className="flex items-center gap-1 text-[#fea619]">
                             <Star className="w-3.5 h-3.5 fill-current" />
                             <span className="text-[#131b2e] dark:text-white font-semibold">
-                              {item.rating}
+                              {item.rating ? item.rating.toFixed(1) : "Not rated"}
                             </span>
                             <span className="text-[#6d7a72] font-normal">
                               ({item.reviewsCount})
@@ -1051,111 +862,23 @@ export default function BrowsePage() {
             </div>
           )}
 
-          {/* ======================================================= */}
-          {/* 4. "SMART PAIRING FOR YOUR WEEKEND PROJECT" (ML BUNDLE)  */}
-          {/* ======================================================= */}
-          <div className="bg-[#faf8ff] dark:bg-[#131b2e] border border-[#d2d9f4] dark:border-neutral-700 rounded-2xl p-5 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#ecfdf5] text-[#006948] flex items-center justify-center">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold leading-tight">
-                    Smart Pairing for Your Weekend Project
-                  </h4>
-                  <p className="text-xs text-[#6d7a72] dark:text-neutral-400">
-                    Bengaluru borrowers who rented drills or pressure washers also bundled:
-                  </p>
-                </div>
-              </div>
-
-              <span className="self-start sm:self-auto px-2.5 py-1 rounded-full bg-[#006948] text-white text-[10px] font-bold tracking-wider uppercase">
-                ML Bundle Discount Applied
-              </span>
-            </div>
-
-            {/* Bundle items carousel */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {BUNDLE_ACCESSORIES.map((b) => {
-                const isAdded = addedBundles.has(b.id);
-                return (
-                  <div
-                    key={b.id}
-                    className="bg-white dark:bg-neutral-800 border border-[#e2e8f0] dark:border-neutral-700 rounded-xl p-3 flex items-center justify-between gap-3 shadow-sm hover:border-[#006948] transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <img
-                        src={b.image}
-                        alt={b.title}
-                        className="w-10 h-10 rounded-lg object-cover shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <h5 className="text-xs font-bold truncate">{b.title}</h5>
-                        <p className="text-[10px] text-[#6d7a72] dark:text-neutral-400 truncate">
-                          {b.desc}
-                        </p>
-                        <span className="text-xs font-extrabold text-[#006948] dark:text-[#68dba9]">
-                          ₹{b.price} / d
-                        </span>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleToggleBundle(b.id)}
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-all shrink-0 ${
-                        isAdded
-                          ? "bg-[#006948] text-white"
-                          : "bg-[#f2f4ff] hover:bg-[#006948] hover:text-white text-[#006948]"
-                      }`}
-                      aria-label="Add to rental"
-                    >
-                      {isAdded ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          {recommendationQuery.length >= 2 && recommendationsLoading && (
+            <p className="text-center text-xs text-[#6d7a72] dark:text-neutral-400" role="status">
+              Finding related listings to add to your results…
+            </p>
+          )}
+          {recommendationQuery.length >= 2 && recommendationsError && (
+            <p className="text-center text-xs text-[#6d7a72] dark:text-neutral-400" role="status">
+              Related listings are temporarily unavailable. Search results are still shown above.
+            </p>
+          )}
 
           {/* ======================================================= */}
           {/* 5. PAGINATION ROW                                       */}
           {/* ======================================================= */}
-          <div className="pt-4 border-t border-[#e2e8f0] dark:border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6d7a72] dark:text-neutral-400">
-            <div>
-              Showing <strong className="text-[#131b2e] dark:text-white">1 – {filteredItems.length}</strong> of{" "}
-              <strong className="text-[#131b2e] dark:text-white">84</strong> equipment listings
-            </div>
-
-            <div className="flex items-center gap-1.5 font-semibold">
-              <button
-                disabled
-                className="px-2.5 py-1.5 rounded-lg border border-[#e2e8f0] dark:border-neutral-700 opacity-50 cursor-not-allowed flex items-center gap-1"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-                <span>Prev</span>
-              </button>
-
-              <button className="w-8 h-8 rounded-lg bg-[#006948] text-white font-bold flex items-center justify-center shadow-sm">
-                1
-              </button>
-              <button className="w-8 h-8 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center justify-center">
-                2
-              </button>
-              <button className="w-8 h-8 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center justify-center">
-                3
-              </button>
-              <span className="px-1 text-[#6d7a72]">...</span>
-              <button className="w-8 h-8 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center justify-center">
-                11
-              </button>
-
-              <button className="px-2.5 py-1.5 rounded-lg border border-[#e2e8f0] dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 flex items-center gap-1">
-                <span>Next</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          <div className="pt-4 border-t border-[#e2e8f0] dark:border-neutral-800 text-xs text-[#6d7a72] dark:text-neutral-400">
+            Showing <strong className="text-[#131b2e] dark:text-white">{searchItemsWithRelated.length}</strong>{" "}
+            {searchItemsWithRelated.length === 1 ? "listing" : "listings"} including related recommendations
           </div>
         </div>
       </div>
@@ -1175,6 +898,7 @@ export default function BrowsePage() {
               <img
                 src={activeReserveItem.image}
                 alt={activeReserveItem.name}
+                onError={handleListingImageError}
                 className="w-20 h-20 rounded-xl object-cover border border-[#e2e8f0] dark:border-neutral-700"
               />
               <div className="space-y-1 flex-1">

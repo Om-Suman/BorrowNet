@@ -37,3 +37,29 @@ export const itemsApi = {
   },
   getById: (id) => apiClient(`/items/${id}`),
 };
+
+export const recommendationsApi = {
+  related: ({ itemId, q, limit = 6 } = {}) => {
+    const searchParams = new URLSearchParams();
+    if (itemId) searchParams.set("itemId", itemId);
+    if (q) searchParams.set("q", q);
+    searchParams.set("limit", String(limit));
+    return apiClient(`/recommendations/related?${searchParams.toString()}`);
+  },
+};
+
+export const requestsApi = {
+  list: (params = {}) => {
+    const searchParams = new URLSearchParams(params);
+    const queryString = searchParams.toString();
+    return apiClient(`/requests${queryString ? `?${queryString}` : ""}`);
+  },
+};
+
+export const transactionsApi = {
+  list: (params = {}) => {
+    const searchParams = new URLSearchParams(params);
+    const queryString = searchParams.toString();
+    return apiClient(`/transactions${queryString ? `?${queryString}` : ""}`);
+  },
+};

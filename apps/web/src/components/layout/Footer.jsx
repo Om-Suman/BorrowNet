@@ -56,11 +56,6 @@ export default function Footer() {
                   Community Guarantee
                 </a>
               </li>
-              <li>
-                <a href="#lender-earnings" className="hover:text-[#006948] dark:hover:text-[#68dba9] transition-colors">
-                  Lending Insurance up to ₹50,000
-                </a>
-              </li>
             </ul>
           </div>
 
@@ -133,11 +128,11 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom copyright & locations */}
+        {/* Bottom copyright & catalog note */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6d7a72] dark:text-neutral-400">
           <p>© 2026 borrowNet Technologies Inc. Sustainable community gear sharing across India.</p>
           <p className="font-medium tracking-tight">
-            Bengaluru • Mumbai • Delhi NCR • Hyderabad • Pune
+            Available locations depend on active listings.
           </p>
         </div>
       </div>

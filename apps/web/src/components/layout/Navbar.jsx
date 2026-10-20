@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { categoriesApi } from "../../api/endpoints";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   Menu,
@@ -17,23 +19,14 @@ import { useAuth } from "../../context/AuthContext";
 import Button from "../ui/Button";
 import ThemeToggle from "../ui/ThemeToggle";
 
-const POPULAR_CATEGORIES = [
-  { label: "All Items", slug: "" },
-  { label: "Power Tools", slug: "power-tools" },
-  { label: "Cameras & AV", slug: "cameras-studio-lights" },
-  { label: "Camping & Outdoors", slug: "tents-trail-gear" },
-  { label: "Lawn & Garden", slug: "lawn-garden-machinery" },
-  { label: "Party & Events", slug: "party-events" },
-  { label: "Generators & Power", slug: "generators-site-power" },
-];
-
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [navSearch, setNavSearch] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("Bengaluru (10 km)");
+  const { data: categoriesData } = useQuery({ queryKey: ["categories"], queryFn: categoriesApi.list, staleTime: 1000 * 60 * 5 });
+  const popularCategories = [{ label: "All Items", slug: "" }, ...(Array.isArray(categoriesData?.data) ? categoriesData.data.map((category) => ({ label: category.name, slug: category.slug })) : [])];
 
   const handleLogout = async () => {
     await logout();
@@ -92,7 +85,7 @@ export default function Navbar() {
 
             <div className="flex items-center gap-1 text-xs text-[#131b2e] dark:text-neutral-300 font-medium px-2 py-1 shrink-0 cursor-pointer hover:text-[#006948]">
               <MapPin className="w-3.5 h-3.5 text-[#006948] dark:text-[#68dba9]" />
-              <span className="truncate max-w-[120px]">{selectedLocation}</span>
+              <span className="truncate max-w-[120px]">Search all locations</span>
               <ChevronDown className="w-3 h-3 text-[#6d7a72]" />
             </div>
 
@@ -202,7 +195,7 @@ export default function Navbar() {
               Popular:
             </span>
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
-              {POPULAR_CATEGORIES.map((cat) => {
+              {popularCategories.map((cat) => {
                 const isActive =
                   cat.slug === ""
                     ? !currentCategory && location.pathname === "/"
