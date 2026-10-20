@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { authApi, usersApi } from '../api/endpoints';
 import { setAccessToken } from '../api/client';
 
@@ -7,6 +8,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const initAuth = async () => {
@@ -28,6 +30,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (credentials) => {
+    // Clear any cached queries from a previously logged-in user
+    queryClient.clear();
     const res = await authApi.login(credentials);
     setAccessToken(res.data.accessToken);
     setUser(res.data.user);
@@ -35,6 +39,7 @@ export function AuthProvider({ children }) {
   };
 
   const register = async (userData) => {
+    queryClient.clear();
     const res = await authApi.register(userData);
     setAccessToken(res.data.accessToken);
     setUser(res.data.user);
@@ -42,6 +47,7 @@ export function AuthProvider({ children }) {
   };
 
   const loginWithGoogle = async (googleData) => {
+    queryClient.clear();
     const res = await authApi.googleAuth(googleData);
     setAccessToken(res.data.accessToken);
     setUser(res.data.user);
@@ -54,6 +60,8 @@ export function AuthProvider({ children }) {
     } finally {
       setAccessToken(null);
       setUser(null);
+      // Instantly wipe all cached user data from memory on logout
+      queryClient.clear();
     }
   };
 

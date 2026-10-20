@@ -35,25 +35,31 @@ export default function DashboardPage() {
   const [selectedRequestToReject, setSelectedRequestToReject] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
 
-  // Queries
+  // Queries bound to the authenticated user ID so cache is isolated per user
+  const userId = user?.id || "guest";
+
   const { data: myItemsData } = useQuery({
-    queryKey: ["my-items"],
+    queryKey: ["my-items", userId],
     queryFn: usersApi.getMyItems,
+    enabled: Boolean(user?.id),
   });
 
   const { data: borrowerRequestsData } = useQuery({
-    queryKey: ["requests", "borrower"],
+    queryKey: ["requests", "borrower", userId],
     queryFn: () => requestsApi.list({ role: "borrower" }),
+    enabled: Boolean(user?.id),
   });
 
   const { data: lenderRequestsData } = useQuery({
-    queryKey: ["requests", "lender"],
+    queryKey: ["requests", "lender", userId],
     queryFn: () => requestsApi.list({ role: "lender" }),
+    enabled: Boolean(user?.id),
   });
 
   const { data: transactionsData } = useQuery({
-    queryKey: ["transactions"],
+    queryKey: ["transactions", userId],
     queryFn: () => transactionsApi.list(),
+    enabled: Boolean(user?.id),
   });
 
   const myItems = Array.isArray(myItemsData?.data) ? myItemsData.data : [];
@@ -358,10 +364,31 @@ export default function DashboardPage() {
                         <span className="font-semibold text-slate-700 dark:text-neutral-300">
                           ₹{Number(req.rentTotal || 0).toLocaleString("en-IN")} rent + ₹{Number(req.estimatedDeposit || 0).toLocaleString("en-IN")} deposit
                         </span>
-                        {activeTab === "lender" && req.borrower?.name && (
+                        {/* Tab-specific participant tag */}
+                        {activeTab === "borrower" && (
                           <>
                             <span>•</span>
-                            <span>Requested by: <strong>{req.borrower.name}</strong></span>
+                            <span>
+                              Lender: <strong className="text-slate-800 dark:text-neutral-200">{req.item?.owner?.name || "Equipment Owner"}</strong>
+                            </span>
+                            {isApproved && (
+                              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                                (Approved by {req.item?.owner?.name || "Lender"})
+                              </span>
+                            )}
+                          </>
+                        )}
+                        {activeTab === "lender" && (
+                          <>
+                            <span>•</span>
+                            <span>
+                              Requested by: <strong className="text-slate-800 dark:text-neutral-200">{req.borrower?.name || "Neighbor"}</strong>
+                            </span>
+                            {req.borrower?.reputationScore !== undefined && (
+                              <span className="text-amber-500 font-semibold">
+                                ★ {(req.borrower.reputationScore / 20).toFixed(1)}
+                              </span>
+                            )}
                           </>
                         )}
                       </div>
