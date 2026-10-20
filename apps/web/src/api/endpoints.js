@@ -60,6 +60,14 @@ export const requestsApi = {
     const queryString = searchParams.toString();
     return apiClient(`/requests${queryString ? `?${queryString}` : ""}`);
   },
+  getById: (id) => apiClient(`/requests/${id}`),
+  approve: (id) => apiClient(`/requests/${id}/approve`, { method: "PATCH" }),
+  reject: (id, reason) =>
+    apiClient(`/requests/${id}/reject`, {
+      method: "PATCH",
+      body: JSON.stringify({ reason: reason || "Declined by lender." }),
+    }),
+  cancel: (id) => apiClient(`/requests/${id}/cancel`, { method: "PATCH" }),
 };
 
 export const transactionsApi = {

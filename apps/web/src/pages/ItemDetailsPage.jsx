@@ -25,6 +25,7 @@ import { itemsApi, recommendationsApi } from '../api/endpoints';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import Button from '../components/ui/Button';
+import Modal from '../components/ui/Modal';
 
 const FALLBACK_IMAGE = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect width="800" height="600" fill="#f1f5f9"/><path d="M240 395l90-100 63 68 53-55 114 130H240z" fill="#cbd5e1"/><circle cx="315" cy="212" r="32" fill="#cbd5e1"/><rect x="180" y="135" width="440" height="330" rx="30" fill="none" stroke="#94a3b8" stroke-width="20"/></svg>'
@@ -54,6 +55,10 @@ export default function ItemDetailsPage() {
   // Selected image gallery state
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
+
+  // Success Confirmation Modal State
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [submittedBookingData, setSubmittedBookingData] = useState(null);
 
   // Rental form dates & state
   const todayStr = useMemo(() => formatDateToIso(new Date()), []);
@@ -140,12 +145,23 @@ export default function ItemDetailsPage() {
   // Submit Borrow Request Mutation
   const borrowMutation = useMutation({
     mutationFn: (requestPayload) => itemsApi.createBorrowRequest(id, requestPayload),
-    onSuccess: () => {
-      toast.success('Your borrow request has been submitted to the lender!');
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['item-availability', id] });
       queryClient.invalidateQueries({ queryKey: ['requests'] });
+      setSubmittedBookingData({
+        pickupDate,
+        returnDate,
+        rentalDays,
+        rentalSubtotal,
+        platformFee,
+        depositValue,
+        totalDueInEscrow,
+        lenderName: owner.name || 'Owner',
+        itemTitle: item.title,
+        requestId: response?.data?.id,
+      });
+      setIsSuccessModalOpen(true);
       setBorrowerNote('');
-      navigate('/dashboard');
     },
     onError: (err) => {
       const msg = err?.error?.message || err?.message || 'Unable to submit rental request.';
@@ -749,6 +765,121 @@ export default function ItemDetailsPage() {
           </section>
         )}
       </div>
+
+      {/* =============================================================== */}
+      {/* REQUEST SUBMITTED SUCCESS CONFIRMATION MODAL                    */}
+      {/* =============================================================== */}
+      <Modal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        size="md"
+      >
+        <div className="space-y-6 text-center sm:text-left">
+          {/* Header Graphic & Badge */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 border-b border-slate-200 dark:border-neutral-800 pb-5">
+            <div className="w-14 h-14 rounded-2xl bg-[#ecfdf5] dark:bg-emerald-950/80 text-[#006948] dark:text-[#68dba9] flex items-center justify-center shrink-0 shadow-sm border border-emerald-500/20">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <div>
+              <div className="inline-flex items-center gap-1 text-[11px] font-bold text-[#006948] dark:text-[#68dba9] uppercase tracking-wider">
+                <span>Request Submitted</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-display font-extrabold text-slate-900 dark:text-white">
+                Borrow Request Sent!
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">
+                Sent to <strong>{submittedBookingData?.lenderName}</strong> for approval.
+              </p>
+            </div>
+          </div>
+
+          {/* Booking Summary Box */}
+          <div className="bg-slate-50 dark:bg-[#0c1222] rounded-2xl p-4 border border-slate-200 dark:border-neutral-800 space-y-3 text-xs">
+            <div className="flex justify-between items-baseline border-b border-slate-200 dark:border-neutral-800/80 pb-2">
+              <span className="text-slate-500 dark:text-neutral-400">Equipment</span>
+              <span className="font-bold text-slate-900 dark:text-white truncate max-w-[220px]">
+                {submittedBookingData?.itemTitle}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500 dark:text-neutral-400">Rental Window</span>
+              <span className="font-bold text-slate-900 dark:text-white">
+                {submittedBookingData?.pickupDate} to {submittedBookingData?.returnDate} ({submittedBookingData?.rentalDays} days)
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500 dark:text-neutral-400">Estimated Total in Escrow</span>
+              <span className="font-extrabold text-[#006948] dark:text-[#68dba9] text-sm">
+                ₹{submittedBookingData?.totalDueInEscrow?.toLocaleString('en-IN')}
+              </span>
+            </div>
+
+            <div className="text-[11px] text-slate-400 border-t border-slate-200 dark:border-neutral-800/80 pt-2 flex items-center gap-1.5">
+              <Lock className="w-3 h-3 text-[#006948] dark:text-[#68dba9]" />
+              <span>Includes refundable security deposit of ₹{submittedBookingData?.depositValue?.toLocaleString('en-IN')}.</span>
+            </div>
+          </div>
+
+          {/* Next Steps Roadmap */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">
+              What Happens Next?
+            </h4>
+            <div className="space-y-2.5 text-xs text-slate-600 dark:text-neutral-300">
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+                  1
+                </span>
+                <p>
+                  <strong>Lender Review:</strong> {submittedBookingData?.lenderName} will review your request and intended dates within 24 hours.
+                </p>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+                  2
+                </span>
+                <p>
+                  <strong>Handover Unlock:</strong> Once approved, the exact pickup location and lender contact details will unlock in your dashboard.
+                </p>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+                  3
+                </span>
+                <p>
+                  <strong>Escrow Security:</strong> Your security deposit is securely held in escrow until you return the gear in good condition.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="pt-2 flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="primary"
+              className="w-full sm:flex-1 py-3 text-xs font-bold"
+              onClick={() => {
+                setIsSuccessModalOpen(false);
+                navigate('/dashboard');
+              }}
+            >
+              Go to Dashboard
+            </Button>
+            <Button
+              variant="outline-on-light"
+              className="w-full sm:flex-1 py-3 text-xs font-bold text-slate-700 dark:text-white"
+              onClick={() => {
+                setIsSuccessModalOpen(false);
+                navigate('/browse');
+              }}
+            >
+              Browse More Gear
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
