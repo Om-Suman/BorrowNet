@@ -4,7 +4,13 @@ import { prisma } from "../../core/prisma.js";
 import { BadRequestException, ConflictException, ForbiddenException, NotFoundException } from "../../core/errors.js";
 
 const requestInclude = {
-  item: { include: { images: { orderBy: { order: "asc" } }, category: true } },
+  item: {
+    include: {
+      images: { orderBy: { order: "asc" } },
+      category: true,
+      owner: { select: { id: true, name: true, avatarUrl: true, reputationScore: true, location: true } },
+    },
+  },
   borrower: { select: { id: true, name: true, avatarUrl: true, reputationScore: true } },
 };
 
