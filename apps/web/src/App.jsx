@@ -7,14 +7,19 @@ import BrowsePage from './pages/BrowsePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
+import ItemDetailsPage from './pages/ItemDetailsPage';
 import NotFoundPage from './pages/NotFoundPage';
+import ScrollToTop from './components/utils/ScrollToTop';
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       <Route element={<AppShell />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/browse" element={<BrowsePage />} />
+        <Route path="/items/:id" element={<ItemDetailsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         
@@ -27,5 +32,6 @@ export default function App() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
+    </>
   );
 }
