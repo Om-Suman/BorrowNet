@@ -16,6 +16,7 @@ import {
   Truck,
   PackageCheck,
   Award,
+  CameraOff,
 } from "lucide-react";
 import { categoriesApi, itemsApi, recommendationsApi } from "../api/endpoints";
 import useDebounce from "../hooks/useDebounce";
@@ -56,10 +57,9 @@ function mapApiItemToCard(item) {
     locality: item.location || item.owner?.location || "Location not provided",
     lenderName: ownerName,
     lenderInitials: ownerName.substring(0, 2).toUpperCase(),
+    ownerId: item.ownerId || item.owner?.id || null,
     tags: [],
-    image:
-      item.images?.[0]?.url ||
-      FALLBACK_ITEM_IMAGE,
+    image: item.images?.[0]?.url || null,
   };
 }
 
@@ -749,12 +749,19 @@ export default function BrowsePage() {
                     <div>
                       {/* Image Frame with badges */}
                       <div className="relative aspect-[4/3] bg-neutral-100 overflow-hidden">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          onError={handleListingImageError}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            onError={handleListingImageError}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-slate-100 dark:bg-neutral-800/90 flex flex-col items-center justify-center text-slate-400 gap-1.5">
+                            <CameraOff className="w-8 h-8 text-slate-400 dark:text-neutral-500" />
+                            <span className="text-[11px] font-semibold text-slate-500 dark:text-neutral-400">No photo</span>
+                          </div>
+                        )}
 
                         {/* Top Left Status Pills */}
                         <div className="absolute top-2.5 left-2.5 flex flex-col gap-1 items-start">
@@ -839,11 +846,20 @@ export default function BrowsePage() {
 
                     {/* Card Footer: Lender Avatar & Price */}
                     <div className="p-4 pt-3 border-t border-[#e2e8f0]/80 dark:border-neutral-700/80 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-[#ecfdf5] text-[#006948] dark:bg-emerald-950/80 dark:text-[#68dba9] flex items-center justify-center font-bold text-[10px]">
+                      <div
+                        onClick={(e) => {
+                          if (item.ownerId) {
+                            e.stopPropagation();
+                            navigate(`/users/${item.ownerId}`);
+                          }
+                        }}
+                        className="flex items-center gap-2 hover:text-[#006948] transition-colors cursor-pointer group/lender"
+                        title="View lender profile"
+                      >
+                        <div className="w-6 h-6 rounded-full bg-[#ecfdf5] text-[#006948] dark:bg-emerald-950/80 dark:text-[#68dba9] flex items-center justify-center font-bold text-[10px] group-hover/lender:ring-2 group-hover/lender:ring-[#006948]">
                           {item.lenderInitials}
                         </div>
-                        <span className="text-xs font-semibold text-[#475569] dark:text-neutral-300">
+                        <span className="text-xs font-semibold text-[#475569] dark:text-neutral-300 group-hover/lender:text-[#006948] dark:group-hover/lender:text-[#68dba9] group-hover/lender:underline">
                           {item.lenderName}
                         </span>
                       </div>
@@ -896,12 +912,18 @@ export default function BrowsePage() {
         >
           <div className="space-y-5 text-[#131b2e] dark:text-white">
             <div className="flex gap-4 items-center">
-              <img
-                src={activeReserveItem.image}
-                alt={activeReserveItem.name}
-                onError={handleListingImageError}
-                className="w-20 h-20 rounded-xl object-cover border border-[#e2e8f0] dark:border-neutral-700"
-              />
+              {activeReserveItem.image ? (
+                <img
+                  src={activeReserveItem.image}
+                  alt={activeReserveItem.name}
+                  onError={handleListingImageError}
+                  className="w-20 h-20 rounded-xl object-cover border border-[#e2e8f0] dark:border-neutral-700"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-xl bg-slate-100 dark:bg-neutral-800 border border-[#e2e8f0] dark:border-neutral-700 flex flex-col items-center justify-center text-slate-400 shrink-0">
+                  <CameraOff className="w-6 h-6 text-slate-400" />
+                </div>
+              )}
               <div className="space-y-1 flex-1">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#006948] dark:text-[#68dba9]">
                   {activeReserveItem.category}

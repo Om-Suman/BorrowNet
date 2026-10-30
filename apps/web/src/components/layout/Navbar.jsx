@@ -14,6 +14,7 @@ import {
   Plus,
   Bell,
   ChevronDown,
+  ShieldAlert,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import Button from "../ui/Button";
@@ -107,6 +108,30 @@ export default function Navbar() {
               Borrow Items
             </Link>
 
+            {isAuthenticated && (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="text-sm font-semibold text-[#131b2e] dark:text-neutral-200 hover:text-[#006948] dark:hover:text-[#68dba9] transition-colors px-2 py-1"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to="/transactions"
+                  className="text-sm font-semibold text-[#131b2e] dark:text-neutral-200 hover:text-[#006948] dark:hover:text-[#68dba9] transition-colors px-2 py-1"
+                >
+                  Rentals & Returns
+                </Link>
+                <Link
+                  to="/admin"
+                  className="text-xs font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/60 hover:bg-[#006948] hover:text-white dark:hover:bg-[#006948] px-2.5 py-1 rounded-lg transition-all shadow-xs flex items-center gap-1 border border-emerald-300 dark:border-emerald-800"
+                >
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                  <span>Admin Console</span>
+                </Link>
+              </>
+            )}
+
             <a
               href="#how-it-works"
               className="text-sm font-semibold text-[#131b2e] dark:text-neutral-200 hover:text-[#006948] dark:hover:text-[#68dba9] transition-colors px-2 py-1"
@@ -114,7 +139,7 @@ export default function Navbar() {
               How It Works
             </a>
 
-            <Link to={isAuthenticated ? "/dashboard" : "/login"}>
+            <Link to={isAuthenticated ? "/items/new" : "/login"}>
               <Button
                 variant="primary"
                 size="sm"
@@ -129,8 +154,8 @@ export default function Navbar() {
 
             {isAuthenticated ? (
               <div className="flex items-center space-x-3 pl-2">
-                <Link to="/dashboard">
-                  <div className="flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full bg-white dark:bg-neutral-800 border border-[#e2e8f0] dark:border-neutral-700 shadow-sm hover:border-[#006948] transition-all">
+                <Link to="/profile" title="View my public profile">
+                  <div className="flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full bg-white dark:bg-neutral-800 border border-[#e2e8f0] dark:border-neutral-700 shadow-sm hover:border-[#006948] dark:hover:border-[#68dba9] transition-all">
                     <div className="w-7 h-7 rounded-full bg-[#006948]/10 text-[#006948] dark:text-[#68dba9] flex items-center justify-center font-bold text-xs overflow-hidden">
                       {user?.avatarUrl ? (
                         <img
@@ -266,7 +291,7 @@ export default function Navbar() {
           </a>
 
           <Link
-            to={isAuthenticated ? "/dashboard" : "/login"}
+            to={isAuthenticated ? "/items/new" : "/login"}
             className="flex items-center gap-2 py-2 text-base font-semibold text-[#006948] dark:text-[#68dba9]"
             onClick={() => setMobileMenuOpen(false)}
           >
@@ -283,6 +308,32 @@ export default function Navbar() {
               >
                 <LayoutDashboard className="w-4 h-4" />
                 <span>Dashboard ({user?.name})</span>
+              </Link>
+              {user?.id && (
+                <Link
+                  to={`/users/${user.id}`}
+                  className="flex items-center gap-2 text-base font-semibold text-[#131b2e] dark:text-white"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <User className="w-4 h-4 text-[#006948] dark:text-[#68dba9]" />
+                  <span>My Public Profile</span>
+                </Link>
+              )}
+              <Link
+                to="/transactions"
+                className="flex items-center gap-2 text-base font-semibold text-[#131b2e] dark:text-white"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Clock className="w-4 h-4 text-[#006948]" />
+                <span>Active Rentals & Returns</span>
+              </Link>
+              <Link
+                to="/admin"
+                className="flex items-center gap-2 text-base font-semibold text-emerald-600 dark:text-emerald-400"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <ShieldAlert className="w-4 h-4" />
+                <span>Admin Console</span>
               </Link>
               <button
                 onClick={() => {

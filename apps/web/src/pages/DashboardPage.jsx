@@ -15,6 +15,12 @@ import {
   ThumbsUp,
   Inbox,
   Send,
+  Package,
+  Edit3,
+  Plus,
+  CameraOff,
+  ShieldCheck,
+  User,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -152,15 +158,24 @@ export default function DashboardPage() {
             Welcome back, <strong className="text-slate-900 dark:text-white">{user?.name}</strong>! Manage your borrowing requests, active rentals, and listed gear.
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {user?.id && (
+            <Link to={`/users/${user.id}`}>
+              <Button variant="secondary" className="text-xs font-bold flex items-center gap-1.5 border-slate-300 dark:border-neutral-700">
+                <User className="w-3.5 h-3.5 text-[#006948] dark:text-[#68dba9]" />
+                <span>My Public Profile</span>
+              </Button>
+            </Link>
+          )}
           <Link to="/browse">
             <Button variant="secondary" className="text-xs font-bold">
               Browse Equipment
             </Button>
           </Link>
-          <Link to="/browse">
-            <Button variant="primary" className="text-xs font-bold">
-              List an Item
+          <Link to="/items/new">
+            <Button variant="primary" className="text-xs font-bold flex items-center gap-1.5">
+              <Plus className="w-3.5 h-3.5" />
+              <span>List an Item</span>
             </Button>
           </Link>
         </div>
@@ -168,16 +183,21 @@ export default function DashboardPage() {
 
       {/* Metric Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="rounded-2xl border border-slate-200 dark:border-neutral-800">
-          <CardBody>
-            <div className="text-xs text-slate-500 dark:text-neutral-400 font-bold uppercase tracking-wider">
-              My Active Listings
-            </div>
-            <div className="text-3xl font-display font-extrabold text-slate-900 dark:text-white mt-1">
-              {myItems.length}
-            </div>
-          </CardBody>
-        </Card>
+        <Link to="/transactions" className="block group">
+          <Card className="rounded-2xl border border-slate-200 dark:border-neutral-800 group-hover:border-[#006948] transition-all">
+            <CardBody>
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-slate-500 dark:text-neutral-400 font-bold uppercase tracking-wider">
+                  Active Rentals
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#006948] transition-colors" />
+              </div>
+              <div className="text-3xl font-display font-extrabold text-[#006948] dark:text-[#68dba9] mt-1">
+                {activeBorrows.length}
+              </div>
+            </CardBody>
+          </Card>
+        </Link>
 
         <Card className="rounded-2xl border border-slate-200 dark:border-neutral-800">
           <CardBody>
@@ -213,6 +233,32 @@ export default function DashboardPage() {
           </CardBody>
         </Card>
       </div>
+
+      {/* Active Rentals Quick Access Banner */}
+      {activeBorrows.length > 0 && (
+        <div className="bg-emerald-50/70 dark:bg-emerald-950/20 rounded-3xl border border-emerald-200/80 dark:border-emerald-800/60 p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#006948] text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                You have {activeBorrows.length} active rental{activeBorrows.length > 1 ? "s" : ""} in progress
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">
+                Mark gear as returned, inspect condition, and confirm completion in the rentals ledger.
+              </p>
+            </div>
+          </div>
+
+          <Link to="/transactions" className="shrink-0">
+            <Button variant="primary" size="sm" className="text-xs font-bold flex items-center gap-1.5 shadow-sm">
+              <span>View Rentals & Return Tracking</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Button>
+          </Link>
+        </div>
+      )}
 
       {/* Main Request Management Section */}
       <div className="bg-white dark:bg-[#131b2e] rounded-3xl border border-slate-200 dark:border-neutral-800 p-6 sm:p-8 shadow-sm space-y-6">
@@ -369,11 +415,24 @@ export default function DashboardPage() {
                           <>
                             <span>•</span>
                             <span>
-                              Lender: <strong className="text-slate-800 dark:text-neutral-200">{req.item?.owner?.name || "Equipment Owner"}</strong>
+                              Lender:{" "}
+                              <Link
+                                to={req.item?.owner?.id ? `/users/${req.item.owner.id}` : "#"}
+                                className="font-bold text-slate-800 dark:text-neutral-200 hover:text-[#006948] dark:hover:text-[#68dba9] hover:underline transition-colors"
+                              >
+                                {req.item?.owner?.name || "Equipment Owner"}
+                              </Link>
                             </span>
                             {isApproved && (
                               <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                                (Approved by {req.item?.owner?.name || "Lender"})
+                                (Approved by{" "}
+                                <Link
+                                  to={req.item?.owner?.id ? `/users/${req.item.owner.id}` : "#"}
+                                  className="hover:underline"
+                                >
+                                  {req.item?.owner?.name || "Lender"}
+                                </Link>
+                                )
                               </span>
                             )}
                           </>
@@ -382,7 +441,13 @@ export default function DashboardPage() {
                           <>
                             <span>•</span>
                             <span>
-                              Requested by: <strong className="text-slate-800 dark:text-neutral-200">{req.borrower?.name || "Neighbor"}</strong>
+                              Requested by:{" "}
+                              <Link
+                                to={req.borrower?.id ? `/users/${req.borrower.id}` : "#"}
+                                className="font-bold text-slate-800 dark:text-neutral-200 hover:text-[#006948] dark:hover:text-[#68dba9] hover:underline transition-colors"
+                              >
+                                {req.borrower?.name || "Neighbor"}
+                              </Link>
                             </span>
                             {req.borrower?.reputationScore !== undefined && (
                               <span className="text-amber-500 font-semibold">
@@ -436,6 +501,134 @@ export default function DashboardPage() {
                         </button>
                       </div>
                     )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* My Equipment Listings Section */}
+      <div className="bg-white dark:bg-[#131b2e] rounded-3xl border border-slate-200 dark:border-neutral-800 p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-neutral-800 pb-5">
+          <div>
+            <h2 className="text-xl font-display font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Package className="w-5 h-5 text-[#006948] dark:text-[#68dba9]" />
+              <span>My Equipment Inventory ({myItems.length})</span>
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">
+              Manage your published listings, update pricing, or edit gear specifications.
+            </p>
+          </div>
+
+          <Link to="/items/new">
+            <Button variant="primary" size="sm" className="text-xs font-bold flex items-center gap-1.5 shadow-sm">
+              <Plus className="w-4 h-4" />
+              <span>List New Gear</span>
+            </Button>
+          </Link>
+        </div>
+
+        {myItems.length === 0 ? (
+          <div className="py-12 text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-neutral-800 flex items-center justify-center mx-auto text-slate-400">
+              <Package className="w-6 h-6" />
+            </div>
+            <h3 className="text-sm font-bold text-slate-800 dark:text-neutral-200">
+              You haven't listed any equipment yet.
+            </h3>
+            <p className="text-xs text-slate-400 max-w-sm mx-auto">
+              Put your idle tools, cameras, and camping gear to work and start earning peer-to-peer rental income.
+            </p>
+            <Link to="/items/new">
+              <Button variant="primary" className="text-xs font-bold mt-2">
+                List Your First Item
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {myItems.map((item) => {
+              const hasCover = Array.isArray(item.images) && item.images.length > 0;
+              const coverUrl = hasCover ? (typeof item.images[0] === "string" ? item.images[0] : item.images[0].url) : null;
+              const isPaused = item.status === "PAUSED";
+
+              return (
+                <div
+                  key={item.id}
+                  className="rounded-2xl border border-slate-200 dark:border-neutral-800 bg-slate-50/50 dark:bg-neutral-900/40 overflow-hidden flex flex-col justify-between hover:border-slate-300 dark:hover:border-neutral-700 transition-all shadow-sm group"
+                >
+                  <div>
+                    <div className="relative aspect-[16/9] bg-slate-900 overflow-hidden">
+                      {hasCover ? (
+                        <img
+                          src={coverUrl}
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-slate-100 dark:bg-neutral-800 flex flex-col items-center justify-center text-slate-400 gap-1">
+                          <CameraOff className="w-6 h-6 text-slate-400" />
+                          <span className="text-[10px] font-semibold text-slate-400">No image</span>
+                        </div>
+                      )}
+                      <div className="absolute top-2.5 left-2.5">
+                        <span className="px-2.5 py-0.5 rounded-full bg-white/95 dark:bg-slate-900/90 backdrop-blur-md text-[10px] font-bold text-[#006948] dark:text-[#68dba9] shadow-sm">
+                          {item.category?.name || "Equipment"}
+                        </span>
+                      </div>
+                      <div className="absolute top-2.5 right-2.5">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold shadow-sm ${
+                            isPaused
+                              ? "bg-amber-500 text-slate-950"
+                              : "bg-emerald-600 text-white"
+                          }`}
+                        >
+                          {isPaused ? "Paused" : "Active"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-4 space-y-2">
+                      <h4 className="font-display font-bold text-sm text-slate-900 dark:text-white line-clamp-1">
+                        {item.title}
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-neutral-400 line-clamp-2 min-h-[32px]">
+                        {item.description}
+                      </p>
+
+                      <div className="pt-2 border-t border-slate-200/80 dark:border-neutral-800 flex items-center justify-between text-xs">
+                        <span className="text-slate-500 dark:text-neutral-400 truncate max-w-[130px]">
+                          {item.location || "Bengaluru"}
+                        </span>
+                        <span className="font-extrabold text-[#006948] dark:text-[#68dba9]">
+                          ₹{Number(item.pricePerDay || 0).toLocaleString("en-IN")}{" "}
+                          <span className="text-[10px] text-slate-400 font-normal">/ day</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-white dark:bg-neutral-800/60 border-t border-slate-200 dark:border-neutral-800 flex items-center gap-2">
+                    <Link to={`/items/${item.id}`} className="flex-1">
+                      <button
+                        type="button"
+                        className="w-full py-1.5 rounded-xl border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-700 text-slate-700 dark:text-neutral-200 text-xs font-bold transition-all"
+                      >
+                        View Item
+                      </button>
+                    </Link>
+                    <Link to={`/items/${item.id}/edit`} className="flex-1">
+                      <button
+                        type="button"
+                        className="w-full py-1.5 rounded-xl bg-[#006948] hover:bg-[#005137] text-white text-xs font-bold transition-all flex items-center justify-center gap-1 shadow-sm"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Edit</span>
+                      </button>
+                    </Link>
                   </div>
                 </div>
               );

@@ -20,6 +20,10 @@ import {
   ArrowRight,
   Share2,
   Lock,
+  Edit3,
+  CameraOff,
+  ExternalLink,
+  User,
 } from 'lucide-react';
 import { itemsApi, recommendationsApi } from '../api/endpoints';
 import { useAuth } from '../context/AuthContext';
@@ -250,11 +254,9 @@ export default function ItemDetailsPage() {
     );
   }
 
-  const galleryImages = (item.images && item.images.length > 0)
-    ? item.images.map((img) => img.url)
-    : [FALLBACK_IMAGE];
-
-  const activeImage = galleryImages[activeImageIndex] || galleryImages[0];
+  const hasImages = Array.isArray(item.images) && item.images.length > 0;
+  const galleryImages = hasImages ? item.images.map((img) => (typeof img === 'string' ? img : img.url)) : [];
+  const activeImage = hasImages ? (galleryImages[activeImageIndex] || galleryImages[0]) : null;
   const owner = item.owner || {};
   const isOwner = user?.id === owner.id;
 
@@ -287,6 +289,17 @@ export default function ItemDetailsPage() {
           </nav>
 
           <div className="flex items-center gap-3">
+            {isOwner && (
+              <Link to={`/items/${item.id}/edit`}>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#006948] bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-[#006948] dark:text-[#68dba9] font-bold text-xs transition-all active:scale-95 shadow-sm"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>Edit Listing</span>
+                </button>
+              </Link>
+            )}
             <button
               onClick={handleShare}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800/80 hover:bg-slate-100 dark:hover:bg-neutral-700 text-slate-700 dark:text-neutral-200 font-semibold transition-all active:scale-95"
@@ -317,26 +330,54 @@ export default function ItemDetailsPage() {
           <div className="lg:col-span-7 space-y-8">
             {/* Gallery Section */}
             <div className="space-y-3">
-              {/* Main Feature Image */}
-              <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-900 border border-slate-200 dark:border-neutral-800 shadow-md group">
-                <img
-                  src={activeImage}
-                  alt={item.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
-                />
+              {/* Main Feature Image or No Photo Placeholder */}
+              {hasImages ? (
+                <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-900 border border-slate-200 dark:border-neutral-800 shadow-md group">
+                  <img
+                    src={activeImage}
+                    alt={item.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
+                  />
 
-                {/* Top Overlay Badges */}
-                <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 dark:bg-slate-900/90 backdrop-blur-md text-xs font-bold text-[#006948] dark:text-[#68dba9] shadow-sm border border-emerald-500/20">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#006948] dark:text-[#68dba9]" />
-                    <span>Verified Gear</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/90 text-slate-950 text-xs font-bold shadow-sm backdrop-blur-md">
-                    <Zap className="w-3.5 h-3.5" />
-                    <span>P2P Handover</span>
-                  </span>
+                  {/* Top Overlay Badges */}
+                  <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 dark:bg-slate-900/90 backdrop-blur-md text-xs font-bold text-[#006948] dark:text-[#68dba9] shadow-sm border border-emerald-500/20">
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#006948] dark:text-[#68dba9]" />
+                      <span>Verified Gear</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/90 text-slate-950 text-xs font-bold shadow-sm backdrop-blur-md">
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>P2P Handover</span>
+                    </span>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-100 dark:bg-neutral-800/80 border border-slate-200 dark:border-neutral-800 flex flex-col items-center justify-center text-slate-400 dark:text-neutral-500 gap-3 shadow-sm">
+                  <div className="w-16 h-16 rounded-3xl bg-white dark:bg-neutral-800 flex items-center justify-center text-slate-400 dark:text-neutral-500 shadow-sm">
+                    <CameraOff className="w-8 h-8" />
+                  </div>
+                  <div className="text-center space-y-0.5">
+                    <span className="text-sm font-bold text-slate-700 dark:text-neutral-300 block">
+                      No Photo Provided
+                    </span>
+                    <span className="text-xs text-slate-400">
+                      The owner has not uploaded any photos for this equipment
+                    </span>
+                  </div>
+
+                  {/* Top Overlay Badges */}
+                  <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 dark:bg-slate-900/90 backdrop-blur-md text-xs font-bold text-[#006948] dark:text-[#68dba9] shadow-sm border border-emerald-500/20">
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#006948] dark:text-[#68dba9]" />
+                      <span>Verified Gear</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/90 text-slate-950 text-xs font-bold shadow-sm backdrop-blur-md">
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>P2P Handover</span>
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Thumbnail Strip */}
               {galleryImages.length > 1 && (
@@ -458,15 +499,21 @@ export default function ItemDetailsPage() {
 
             {/* Lender Profile Card */}
             <div className="bg-white dark:bg-[#131b2e] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-neutral-800 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
+              <Link to={owner.id ? `/users/${owner.id}` : "#"} className="flex items-center gap-4 group">
                 <div className="relative">
-                  <img
-                    src={owner.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80'}
-                    alt={owner.name || 'Lender'}
-                    className="w-16 h-16 rounded-2xl object-cover ring-2 ring-[#006948]/20"
-                  />
+                  {owner.avatarUrl ? (
+                    <img
+                      src={owner.avatarUrl}
+                      alt={owner.name || 'Lender'}
+                      className="w-16 h-16 rounded-2xl object-cover ring-2 ring-[#006948]/20 group-hover:scale-105 transition-transform"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-2xl bg-[#006948]/10 text-[#006948] dark:text-[#68dba9] flex items-center justify-center font-display font-black text-xl ring-2 ring-[#006948]/20 group-hover:scale-105 transition-transform">
+                      {owner.name?.charAt(0) || <User className="w-6 h-6" />}
+                    </div>
+                  )}
                   {owner.isVerified && (
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#006948] text-white flex items-center justify-center">
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#006948] text-white flex items-center justify-center shadow-xs">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                     </div>
                   )}
@@ -474,8 +521,9 @@ export default function ItemDetailsPage() {
 
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-lg font-display font-bold text-slate-900 dark:text-white">
-                      {owner.name || 'Verified Lender'}
+                    <h3 className="text-lg font-display font-bold text-slate-900 dark:text-white group-hover:text-[#006948] dark:group-hover:text-[#68dba9] transition-colors flex items-center gap-1.5">
+                      <span>{owner.name || 'Verified Lender'}</span>
+                      <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </h3>
                     <span className="px-2.5 py-0.5 rounded-full bg-[#ecfdf5] dark:bg-emerald-950/60 text-[#006948] dark:text-[#68dba9] text-[11px] font-bold">
                       Owner
@@ -488,7 +536,7 @@ export default function ItemDetailsPage() {
                     Based in {owner.location || 'Bengaluru'} • Member since {new Date(owner.createdAt || Date.now()).getFullYear()}
                   </p>
                 </div>
-              </div>
+              </Link>
 
               <div className="text-left sm:text-right shrink-0">
                 <span className="text-xs font-semibold text-slate-500 dark:text-neutral-400 block">
@@ -675,20 +723,31 @@ export default function ItemDetailsPage() {
                 </div>
 
                 {/* Action CTA */}
-                <Button
-                  type="submit"
-                  disabled={borrowMutation.isPending || isDateRangeBlocked || rentalDays <= 0 || isOwner}
-                  isLoading={borrowMutation.isPending}
-                  className="w-full py-3.5 text-sm font-bold shadow-md"
-                >
-                  {isOwner
-                    ? 'This is your own listing'
-                    : isDateRangeBlocked
-                    ? 'Dates Unavailable'
-                    : rentalDays <= 0
-                    ? 'Select Valid Dates'
-                    : 'Reserve Equipment'}
-                </Button>
+                {isOwner ? (
+                  <Link to={`/items/${item.id}/edit`} className="w-full">
+                    <Button
+                      type="button"
+                      variant="primary"
+                      className="w-full py-3.5 text-sm font-bold shadow-md flex items-center justify-center gap-2"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                      <span>Edit Your Listing</span>
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button
+                    type="submit"
+                    disabled={borrowMutation.isPending || isDateRangeBlocked || rentalDays <= 0}
+                    isLoading={borrowMutation.isPending}
+                    className="w-full py-3.5 text-sm font-bold shadow-md"
+                  >
+                    {isDateRangeBlocked
+                      ? 'Dates Unavailable'
+                      : rentalDays <= 0
+                      ? 'Select Valid Dates'
+                      : 'Reserve Equipment'}
+                  </Button>
+                )}
 
                 <p className="text-center text-[11px] text-slate-500 dark:text-neutral-400 flex items-center justify-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#006948] dark:text-[#68dba9]" />
@@ -731,11 +790,18 @@ export default function ItemDetailsPage() {
                 >
                   <div>
                     <div className="relative aspect-[4/3] bg-slate-100 dark:bg-neutral-800 overflow-hidden">
-                      <img
-                        src={relItem.images?.[0]?.url || FALLBACK_IMAGE}
-                        alt={relItem.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+                      {relItem.images?.[0]?.url ? (
+                        <img
+                          src={relItem.images[0].url}
+                          alt={relItem.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-1 bg-slate-100 dark:bg-neutral-800">
+                          <CameraOff className="w-6 h-6 text-slate-400" />
+                          <span className="text-[10px] font-semibold text-slate-400">No photo</span>
+                        </div>
+                      )}
                     </div>
                     <div className="p-4 space-y-1.5">
                       <p className="text-[10px] font-bold uppercase tracking-wider text-[#006948] dark:text-[#68dba9]">
