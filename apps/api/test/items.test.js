@@ -40,6 +40,22 @@ describe("Items Catalog Schema and Endpoints", () => {
     });
     expect(parsed.pricePerDay).toBe(150);
     expect(() => createItemSchema.parse({ ...parsed, images: ["not-a-url"] })).toThrow();
+
+    // Allows empty images array (no image uploaded)
+    const withoutImages = createItemSchema.parse({
+      ...parsed,
+      images: [],
+    });
+    expect(withoutImages.images).toEqual([]);
+
+    // Allows uploaded data URI images
+    const withDataUri = createItemSchema.parse({
+      ...parsed,
+      images: [
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+      ],
+    });
+    expect(withDataUri.images).toHaveLength(1);
   });
 
   it("requires at least one valid field when updating an item", () => {

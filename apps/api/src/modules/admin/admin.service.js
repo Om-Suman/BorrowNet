@@ -2,11 +2,29 @@ import { prisma } from "../../core/prisma.js";
 import { ConflictException, NotFoundException } from "../../core/errors.js";
 
 export async function listReports() {
-  return prisma.report.findMany({
+  const reports = await prisma.report.findMany({
     where: { status: "PENDING" },
     include: { reporter: { select: { id: true, name: true, email: true } } },
     orderBy: { createdAt: "asc" },
   });
+
+  return Promise.all(
+    reports.map(async (rep) => {
+      let target = null;
+      if (rep.targetType === "ITEM") {
+        target = await prisma.item.findUnique({
+          where: { id: rep.targetId },
+          select: { id: true, title: true, status: true, pricePerDay: true, owner: { select: { id: true, name: true } } },
+        });
+      } else if (rep.targetType === "USER") {
+        target = await prisma.user.findUnique({
+          where: { id: rep.targetId },
+          select: { id: true, name: true, email: true, isSuspended: true, reputationScore: true },
+        });
+      }
+      return { ...rep, target };
+    })
+  );
 }
 
 export async function updateReport(reportId, status) {

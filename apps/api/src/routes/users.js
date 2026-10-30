@@ -43,4 +43,13 @@ router.get('/:id', validate(paramsIdSchema, 'params'), async (req, res, next) =>
   }
 });
 
+router.get('/:id/items', validate(paramsIdSchema, 'params'), async (req, res, next) => {
+  try {
+    const result = await usersService.getUserItems(req.params.id);
+    paginated(res, result.items, result.meta);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

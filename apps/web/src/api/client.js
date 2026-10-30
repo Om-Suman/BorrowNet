@@ -1,7 +1,17 @@
-let accessToken = null;
+let accessToken =
+  typeof window !== "undefined" && window.sessionStorage
+    ? window.sessionStorage.getItem("borrownet_access_token")
+    : null;
 
 export const setAccessToken = (token) => {
   accessToken = token;
+  if (typeof window !== "undefined" && window.sessionStorage) {
+    if (token) {
+      window.sessionStorage.setItem("borrownet_access_token", token);
+    } else {
+      window.sessionStorage.removeItem("borrownet_access_token");
+    }
+  }
 };
 
 export const getAccessToken = () => {
@@ -28,8 +38,8 @@ export async function apiClient(endpoint, options = {}) {
   try {
     let response = await fetch(url, config);
 
-    if (response.status === 401 && accessToken) {
-      // Attempt silent refresh
+    // If 401 Unauthorized occurs, attempt silent token refresh (unless already calling /auth/refresh)
+    if (response.status === 401 && endpoint !== "/auth/refresh") {
       try {
         const refreshRes = await fetch("/api/v1/auth/refresh", {
           method: "POST",
@@ -39,29 +49,36 @@ export async function apiClient(endpoint, options = {}) {
 
         if (refreshRes.ok) {
           const refreshData = await refreshRes.json();
-          setAccessToken(refreshData.data.accessToken);
+          const freshToken = refreshData.data?.accessToken;
+          if (freshToken) {
+            setAccessToken(freshToken);
 
-          // Retry original request with fresh token
-          const retryHeaders = {
-            ...headers,
-            Authorization: `Bearer ${refreshData.data.accessToken}`,
-          };
-          response = await fetch(url, { ...config, headers: retryHeaders });
+            // Retry original request with fresh token
+            const retryHeaders = {
+              ...headers,
+              Authorization: `Bearer ${freshToken}`,
+            };
+            response = await fetch(url, { ...config, headers: retryHeaders });
+          }
         } else {
           setAccessToken(null);
-          throw new Error("Session expired. Please log in again.");
         }
-      } catch (e) {
+      } catch {
         setAccessToken(null);
-        throw e;
       }
     }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      const rawMessage = errorData.error?.message;
+      const friendlyMessage =
+        response.status === 401
+          ? "Your login session has expired or is invalid. Please log in again."
+          : rawMessage || "An error occurred";
+
       throw {
         status: response.status,
-        message: errorData.error?.message || "An error occurred",
+        message: friendlyMessage,
         code: errorData.error?.code,
         details: errorData.error?.details,
       };

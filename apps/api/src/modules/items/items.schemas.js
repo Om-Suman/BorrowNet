@@ -12,7 +12,21 @@ export const itemIdParamSchema = z.object({
   id: z.string().uuid(),
 });
 
-const imageUrlSchema = z.string().url().max(2048);
+const imageUrlSchema = z
+  .string()
+  .refine(
+    (val) => {
+      if (val.startsWith("data:image/")) return true;
+      try {
+        const parsed = new URL(val);
+        return parsed.protocol === "http:" || parsed.protocol === "https:";
+      } catch {
+        return false;
+      }
+    },
+    { message: "Must be a valid HTTP(S) URL or image data URI" },
+  )
+  .and(z.string().max(2000000));
 const itemFields = {
   title: z.string().trim().min(3).max(120),
   description: z.string().trim().min(10).max(5000),

@@ -17,6 +17,7 @@ export const usersApi = {
     apiClient("/users/me", { method: "PATCH", body: JSON.stringify(data) }),
   getPublicProfile: (id) => apiClient(`/users/${id}`),
   getMyItems: () => apiClient("/users/me/items"),
+  getUserItems: (id) => apiClient(`/users/${id}/items`),
 };
 
 export const categoriesApi = {
@@ -41,6 +42,20 @@ export const itemsApi = {
     apiClient(`/items/${id}/requests`, {
       method: "POST",
       body: JSON.stringify(data),
+    }),
+  create: (data) =>
+    apiClient("/items", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  update: (id, data) =>
+    apiClient(`/items/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  delete: (id) =>
+    apiClient(`/items/${id}`, {
+      method: "DELETE",
     }),
 };
 
@@ -76,4 +91,41 @@ export const transactionsApi = {
     const queryString = searchParams.toString();
     return apiClient(`/transactions${queryString ? `?${queryString}` : ""}`);
   },
+  getById: (id) => apiClient(`/transactions/${id}`),
+  markReturned: (id) =>
+    apiClient(`/transactions/${id}/return`, {
+      method: "PATCH",
+    }),
+  complete: (id) =>
+    apiClient(`/transactions/${id}/complete`, {
+      method: "PATCH",
+    }),
+};
+
+export const reviewsApi = {
+  create: (transactionId, data) =>
+    apiClient(`/transactions/${transactionId}/reviews`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  listByUser: (userId) => apiClient(`/users/${userId}/reviews`),
+};
+
+export const adminApi = {
+  listReports: () => apiClient("/admin/reports"),
+  updateReport: (id, status) =>
+    apiClient(`/admin/reports/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }),
+  updateUserStatus: (id, isSuspended) =>
+    apiClient(`/admin/users/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ isSuspended }),
+    }),
+  updateItemStatus: (id, status) =>
+    apiClient(`/admin/items/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }),
 };
