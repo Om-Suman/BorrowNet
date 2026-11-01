@@ -147,6 +147,42 @@ export default function AdminPage() {
     toast.success("Console data synchronized with database.");
   };
 
+  const isAdmin = user?.role === "ADMIN";
+
+  if (!isAdmin) {
+    return (
+      <div className="w-full max-w-2xl mx-auto px-4 py-20 text-center space-y-5">
+        <div className="w-16 h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 mx-auto flex items-center justify-center border border-amber-200 dark:border-amber-800">
+          <Lock className="w-8 h-8" />
+        </div>
+        <div className="space-y-2">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-600 bg-amber-50 dark:bg-amber-950/60 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-800">
+            Admin Access Restricted
+          </span>
+          <h2 className="text-2xl font-display font-extrabold text-slate-900 dark:text-white">
+            Operations Console Requires Admin Role
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-neutral-400 max-w-md mx-auto leading-relaxed">
+            You must be signed in with an administrator account to access platform moderation and oversight controls.
+          </p>
+        </div>
+
+        <div className="flex justify-center gap-3 pt-2">
+          <Link to="/dashboard">
+            <Button variant="primary" size="sm">
+              Return to Dashboard
+            </Button>
+          </Link>
+          <Link to="/login">
+            <Button variant="secondary" size="sm">
+              Sign In as Admin
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
       {/* Top Console Header */}

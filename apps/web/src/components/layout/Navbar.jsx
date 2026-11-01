@@ -122,13 +122,15 @@ export default function Navbar() {
                 >
                   Rentals & Returns
                 </Link>
-                <Link
-                  to="/admin"
-                  className="text-xs font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/60 hover:bg-[#006948] hover:text-white dark:hover:bg-[#006948] px-2.5 py-1 rounded-lg transition-all shadow-xs flex items-center gap-1 border border-emerald-300 dark:border-emerald-800"
-                >
-                  <ShieldAlert className="w-3.5 h-3.5" />
-                  <span>Admin Console</span>
-                </Link>
+                {user?.role === "ADMIN" && (
+                  <Link
+                    to="/admin"
+                    className="text-xs font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/60 hover:bg-[#006948] hover:text-white dark:hover:bg-[#006948] px-2.5 py-1 rounded-lg transition-all shadow-xs flex items-center gap-1 border border-emerald-300 dark:border-emerald-800"
+                  >
+                    <ShieldAlert className="w-3.5 h-3.5" />
+                    <span>Admin Console</span>
+                  </Link>
+                )}
               </>
             )}
 
@@ -327,14 +329,16 @@ export default function Navbar() {
                 <Clock className="w-4 h-4 text-[#006948]" />
                 <span>Active Rentals & Returns</span>
               </Link>
-              <Link
-                to="/admin"
-                className="flex items-center gap-2 text-base font-semibold text-emerald-600 dark:text-emerald-400"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <ShieldAlert className="w-4 h-4" />
-                <span>Admin Console</span>
-              </Link>
+              {user?.role === "ADMIN" && (
+                <Link
+                  to="/admin"
+                  className="flex items-center gap-2 text-base font-semibold text-emerald-600 dark:text-emerald-400"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <ShieldAlert className="w-4 h-4" />
+                  <span>Admin Console</span>
+                </Link>
+              )}
               <button
                 onClick={() => {
                   handleLogout();

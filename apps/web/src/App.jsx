@@ -64,7 +64,11 @@ export default function App() {
         <Route path="/profile" element={<ProfileRedirect />} />
         <Route path="/users/:id" element={<UserProfilePage />} />
         
-        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin" element={
+          <ProtectedRoute requiredRole="ADMIN">
+            <AdminPage />
+          </ProtectedRoute>
+        } />
         
         <Route path="*" element={<NotFoundPage />} />
       </Route>
