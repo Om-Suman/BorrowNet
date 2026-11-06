@@ -13,7 +13,6 @@ import {
   Check,
   Sparkles,
   ShieldCheck,
-  TrendingUp,
   Eye,
   CheckCircle2,
   HelpCircle,
@@ -308,10 +307,9 @@ export default function ItemFormPage() {
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-  // Real-time calculations & checklist
+  // Calculations & checklist
   const selectedCategory = categories.find((c) => c.id === categoryId);
   const dailyPriceNum = Number(pricePerDay) || 0;
-  const estimatedMonthly = Math.round(dailyPriceNum * 6);
 
   const readinessChecks = [
     { label: "Item title & specs", done: title.trim().length >= 3 },
@@ -383,22 +381,8 @@ export default function ItemFormPage() {
           </p>
         </div>
 
-        {/* Top Right ROI / Action Badge */}
+        {/* Top Right Action */}
         <div className="flex items-center gap-3 shrink-0">
-          <div className="bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/60 rounded-2xl p-3.5 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#006948] text-white flex items-center justify-center shadow-xs">
-              <TrendingUp className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="block text-[10px] uppercase font-black tracking-wider text-emerald-800 dark:text-emerald-400">
-                Estimated Monthly ROI
-              </span>
-              <span className="text-sm font-black text-slate-900 dark:text-white">
-                ₹{estimatedMonthly} <span className="text-xs font-normal text-slate-500">/ mo</span>
-              </span>
-            </div>
-          </div>
-
           <Link to={isEditMode ? `/items/${id}` : "/dashboard"}>
             <Button variant="secondary" size="sm" className="text-xs font-bold rounded-xl h-11 px-4">
               <ArrowLeft className="w-3.5 h-3.5 mr-1" />
@@ -746,32 +730,6 @@ export default function ItemFormPage() {
                   <p className="text-[11px] text-slate-400">
                     Held securely in escrow during the rental and released upon check-in.
                   </p>
-                </div>
-              </div>
-
-              {/* Real-Time Return Banner */}
-              <div className="bg-gradient-to-r from-[#006948] to-[#044e36] text-white rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-                    <TrendingUp className="w-5 h-5 text-emerald-300" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-200 block">
-                      Real-Time Monthly Potential
-                    </span>
-                    <span className="text-2xl font-black text-white tracking-tight">
-                      ~₹{estimatedMonthly} <span className="text-xs font-normal text-emerald-200">/ month</span>
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-right sm:border-l sm:border-white/10 sm:pl-4">
-                  <span className="text-[11px] font-medium text-emerald-100 block">
-                    Based on average 6 days/mo rental
-                  </span>
-                  <span className="text-[11px] font-bold text-emerald-300">
-                    Pays off purchase within ~4 months
-                  </span>
                 </div>
               </div>
             </div>
